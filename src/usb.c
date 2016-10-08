@@ -16,20 +16,6 @@
 #define STLINK2_USB_V2_TX_EP   (2 | LIBUSB_ENDPOINT_OUT) /**< USB TX endpoint for Stlink2 */
 #define STLINK2_USB_V2_1_TX_EP (1 | LIBUSB_ENDPOINT_OUT) /**< USB TX endpoint for Stlink2-1 */
 
-/** @todo move to aux */
-static char *stlink2_strdup(const char *s)
-{
-	const size_t n = strlen(s);
-	char *p = malloc(n + 1);
-
-	if (p) {
-		memcpy(p, s, n);
-		p[n] = 0;
-	}
-
-	return p;
-}
-
 static bool stlink2_usb_claim(struct stlink2 *dev)
 {
 	int ret;
@@ -116,7 +102,7 @@ static char *stlink2_usb_read_serial(struct stlink2 *st, libusb_device_handle *h
 	return stlink2_strdup(serial);
 }
 
-bool stlink2_usb_probe_dev(libusb_device *dev, struct stlink2 *st)
+bool stlink2_usb_probe_dev(libusb_device *dev, struct stlink2 *st, bool attach)
 {
 	int ret = 0;
 	struct libusb_device_descriptor desc;
@@ -124,7 +110,7 @@ bool stlink2_usb_probe_dev(libusb_device *dev, struct stlink2 *st)
 
 	ret = libusb_get_device_descriptor(dev, &desc);
 	if (ret) {
-		STLINK2_LOG(ERROR, st, "libusb_get_device_descriptor failed (%s)\n", libusb_error_name(ret));
+		STLINK2_LOG(WARN, st, "libusb_get_device_descriptor failed (%s)\n", libusb_error_name(ret));
 		return false;
 	}
 
@@ -141,16 +127,21 @@ bool stlink2_usb_probe_dev(libusb_device *dev, struct stlink2 *st)
 	stlink2_log_set_file(st, stdout);
 	stlink2_log_set_level(st, STLINK2_LOGLEVEL_INFO);
 
-	st->usb.timeout = 3000;
-	st->usb.dev     = devh;
-	st->usb.pid     = desc.idProduct;
-
-	st->serial = stlink2_usb_read_serial(st, st->usb.dev, &desc);
+	st->serial = stlink2_usb_read_serial(st, devh, &desc);
 	if (!st->serial) {
 		STLINK2_LOG(ERROR, st, "stlink2_usb_read_serial failed\n");
 		libusb_close(devh);
 		return false;
 	}
+
+	if (!attach) {
+		libusb_close(devh);
+		return true;
+	}
+
+	st->usb.dev     = devh;
+	st->usb.timeout = 3000;
+	st->usb.pid     = desc.idProduct;
 
 	stlink2_usb_claim(st);
 	stlink2_usb_config_endpoints(st);

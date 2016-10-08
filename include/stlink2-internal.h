@@ -39,6 +39,7 @@ struct stlink2 {
 	} usb;
 };
 
+char *stlink2_strdup(const char *s);
 void stlink2_read_debug16(struct stlink2 *dev, uint32_t addr, uint16_t *val);
 void stlink2_read_debug32(struct stlink2 *dev, uint32_t addr, uint32_t *val);
 

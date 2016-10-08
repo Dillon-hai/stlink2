@@ -7,6 +7,7 @@ message(STATUS "tests enabled")
 set(TESTS
 	log
 	open_close
+	probe
 )
 
 include_directories(SYSTEM ${LIBUSB_INCLUDE_DIR})

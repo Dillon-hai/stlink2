@@ -334,7 +334,7 @@ struct stlink2 *stlink2_open(const char *serial)
 
 	/* Loop trough all libusb devices and probe stlink2 */
 	for (ssize_t n = 0; n < cnt; n++) {
-		if (!stlink2_usb_probe_dev(devs[n], dev))
+		if (!stlink2_usb_probe_dev(devs[n], dev, true))
 			continue;
 
 		/* When no specific serial is searched then we are done */
@@ -364,6 +364,44 @@ struct stlink2 *stlink2_open(const char *serial)
 void stlink2_close(stlink2_t *dev)
 {
 	stlink2_dev_free(dev);
+}
+
+void stlink2_probe(stlink2_devs_t *devlist)
+{
+	ssize_t cnt;
+	struct stlink2 *dev;
+	libusb_device **devs;
+
+	devlist->len    = 0;
+	devlist->cap    = 16;
+	devlist->serial = calloc(1, devlist->cap * sizeof(const char *)); /** @todo */
+
+	if (!ctx)
+		return;
+
+	cnt = libusb_get_device_list(ctx, &devs);
+	if (cnt < 0)
+		return;
+
+	dev = stlink2_dev_alloc();
+
+	/* Loop trough all libusb devices and probe stlink2 */
+	for (ssize_t n = 0; n < cnt; n++) {
+		if (!stlink2_usb_probe_dev(devs[n], dev, false))
+			continue;
+
+		STLINK2_LOG(INFO, dev, "programmer found: %s\n", dev->serial);
+		devlist->serial[devlist->len] = stlink2_strdup(dev->serial); /** @todo check, free */
+		devlist->len++;
+
+		stlink2_dev_free(&dev);
+		dev = stlink2_dev_alloc();
+
+		if (devlist->len == devlist->cap)
+			break;
+	}
+
+	stlink2_dev_free(&dev);
 }
 
 const char *stlink2_get_serial(stlink2_t dev)
@@ -498,4 +536,17 @@ void stlink2_read_mem(stlink2_t dev, uint32_t addr, void *data, size_t len)
 		_data++;
 		_addr += 4;
 	}
+}
+
+char *stlink2_strdup(const char *s)
+{
+	const size_t n = strlen(s);
+	char *p = malloc(n + 1);
+
+	if (p) {
+		memcpy(p, s, n);
+		p[n] = 0;
+	}
+
+	return p;
 }

@@ -16,7 +16,7 @@
 
 #define STLINK2_USB_CMD_SIZE 16 /**< USB command size in bytes */
 
-bool stlink2_usb_probe_dev(libusb_device *dev, struct stlink2 *st);
+bool stlink2_usb_probe_dev(libusb_device *dev, struct stlink2 *st, bool attach);
 void stlink2_usb_set_name_from_pid(struct stlink2 *dev);
 void stlink2_usb_config_endpoints(struct stlink2 *dev);
 ssize_t stlink2_usb_send_recv(struct stlink2 *dev,

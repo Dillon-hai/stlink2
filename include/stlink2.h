@@ -40,11 +40,17 @@ enum stlink2_swdclk {
 };
 
 typedef struct stlink2 *stlink2_t;
+typedef struct stlink2_devs {
+	size_t len;
+	size_t cap;
+	const char **serial;
+} stlink2_devs_t;
 
 void stlink2_init(void);
 void stlink2_exit(void);
 
 stlink2_t stlink2_open(const char *serial);
+void stlink2_probe(stlink2_devs_t *devs);
 void stlink2_close(stlink2_t *dev);
 
 const char *stlink2_get_name(stlink2_t dev);
