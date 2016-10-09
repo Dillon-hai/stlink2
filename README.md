@@ -41,10 +41,13 @@ The software is tested from time-to-time on the following platforms:
 
 # Contributions
 
-* Linux codestyle with some exceptions
-  * Line width 120 characters
-  * Allowed API struct typedefs
+The codebase uses the [linux kernel codestyle](doc/developer/codestyle.txt) with some exceptions.
+
+* Line width 120 characters
+* Allowed API struct typedefs
+* Advanced macros (for automatic code generation)
 
 # License
 
-All code is [MIT](LICENSE) licensed, except for other components under the `3thparty` folder.
+The project is [MIT](LICENSE) licensed. The code under the `3thparty` folder have their own licenses
+ and are only used during development.
