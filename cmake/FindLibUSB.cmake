@@ -5,24 +5,28 @@
 #  LIBUSB_INCLUDE_DIR - The libusb include directory
 #  LIBUSB_LIBRARY - The libraries needed to use libusb
 #  LIBUSB_DEFINITIONS - Compiler switches required for using libusb
+if (WIN32)
+	find_package (7Zip REQUIRED)
+	message (STATUS "7Zip Location: " ${ZIP_LOCATION})
+endif()
 
-if(WIN32 OR CMAKE_VS_PLATFORM_NAME)
-	set(LIBUSB_WIN_VERSION 1.0.20)
-	set(LIBUSB_WIN_ARCHIVE libusb-${LIBUSB_WIN_VERSION}.7z)
-	set(LIBUSB_WIN_ARCHIVE_PATH ${CMAKE_BINARY_DIR}/${LIBUSB_WIN_ARCHIVE})
-	set(LIBUSB_WIN_OUTPUT_FOLDER ${CMAKE_BINARY_DIR}/3thparty/libusb-${LIBUSB_WIN_VERSION})
+if (WIN32 OR CMAKE_VS_PLATFORM_NAME)
+	set (LIBUSB_WIN_VERSION 1.0.20)
+	set (LIBUSB_WIN_ARCHIVE libusb-${LIBUSB_WIN_VERSION}.7z)
+	set (LIBUSB_WIN_ARCHIVE_PATH ${CMAKE_BINARY_DIR}/${LIBUSB_WIN_ARCHIVE})
+	set (LIBUSB_WIN_OUTPUT_FOLDER ${CMAKE_BINARY_DIR}/3thparty/libusb-${LIBUSB_WIN_VERSION})
 
-	if(EXISTS ${LIBUSB_WIN_ARCHIVE_PATH})
-		message(STATUS "libusb archive already in build folder")
-	else()
-		message(STATUS "downloading libusb ${LIBUSB_WIN_VERSION}")
-		file(DOWNLOAD
+	if (EXISTS ${LIBUSB_WIN_ARCHIVE_PATH})
+		message (STATUS "libusb archive already in build folder")
+	else ()
+		message (STATUS "downloading libusb ${LIBUSB_WIN_VERSION}")
+		file (DOWNLOAD
 			https://sourceforge.net/projects/libusb/files/libusb-1.0/libusb-${LIBUSB_WIN_VERSION}/libusb-${LIBUSB_WIN_VERSION}.7z/download
 			${LIBUSB_WIN_ARCHIVE_PATH}
 		)
 	endif()
-	execute_process(COMMAND ${ZIP_LOCATION} x -y ${LIBUSB_WIN_ARCHIVE_PATH} -o${LIBUSB_WIN_OUTPUT_FOLDER})
-endif()
+	execute_process (COMMAND ${ZIP_LOCATION} x -y ${LIBUSB_WIN_ARCHIVE_PATH} -o${LIBUSB_WIN_OUTPUT_FOLDER})
+endif ()
 
 # FreeBSD
 if (CMAKE_SYSTEM_NAME STREQUAL "FreeBSD")
@@ -61,7 +65,7 @@ if (MSYS OR MINGW)
 		find_library(LIBUSB_LIBRARY NAMES ${LIBUSB_NAME}
 			HINTS ${LIBUSB_WIN_OUTPUT_FOLDER}/MinGW32/static)
 	endif ()
-elseif(CMAKE_VS_PLATFORM_NAME)
+elseif (CMAKE_VS_PLATFORM_NAME)
 	if (CMAKE_SIZEOF_VOID_P EQUAL 8)
 		find_library(LIBUSB_LIBRARY NAMES ${LIBUSB_NAME}
 			HINTS ${LIBUSB_WIN_OUTPUT_FOLDER}/MS64/static)
@@ -69,7 +73,7 @@ elseif(CMAKE_VS_PLATFORM_NAME)
 		find_library(LIBUSB_LIBRARY NAMES ${LIBUSB_NAME}
 			HINTS ${LIBUSB_WIN_OUTPUT_FOLDER}/MS32/static)
 	endif ()
-else()
+else ()
 	find_library(LIBUSB_LIBRARY NAMES ${LIBUSB_NAME}
 	HINTS
 	/usr
@@ -77,7 +81,7 @@ else()
 	/opt)
 endif ()
 
-include(FindPackageHandleStandardArgs)
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(Libusb DEFAULT_MSG LIBUSB_LIBRARY LIBUSB_INCLUDE_DIR)
+include (FindPackageHandleStandardArgs)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS (Libusb DEFAULT_MSG LIBUSB_LIBRARY LIBUSB_INCLUDE_DIR)
 
-mark_as_advanced(LIBUSB_INCLUDE_DIR LIBUSB_LIBRARY)
+mark_as_advanced (LIBUSB_INCLUDE_DIR LIBUSB_LIBRARY)

@@ -4,6 +4,7 @@
 # license that can be found in the LICENSE file.
 #
 cmake_minimum_required(VERSION 2.8)
+project(stlink2 C)
 include(CheckFunctionExists)
 
 if (POLICY CMP0042)
@@ -11,24 +12,10 @@ if (POLICY CMP0042)
 	cmake_policy (SET CMP0042 NEW)
 endif ()
 
-project(stlink2 C)
-
-set(STLINK2_VERSION_MAJOR 0)
-set(STLINK2_VERSION_MINOR 0)
-set(STLINK2_VERSION_PATCH 0)
-set(STLINK2_VERSION "${STLINK2_VERSION_MAJOR}.${STLINK2_VERSION_MINOR}.${STLINK2_VERSION_PATCH}")
-
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
-if(WIN32)
-	find_package(7Zip REQUIRED)
-	message(STATUS "7Zip Location: " ${ZIP_LOCATION})
-endif()
-
+include(cmake/Version.txt)
 include(cmake/CheckCCompilerFlag.txt)
-if (NOT WIN32)
-	include(cmake/Lint.txt)
-endif()
 
 if (WIN32)
 	add_definitions("-DSTLINK2_HAVE_WINDOWS")
@@ -75,8 +62,6 @@ if(MSVC)
 #    SET (CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}" CACHE STRING "MSVC CXX Release MT flags " FORCE)
 endif()
 
-#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fprofile-arcs -ftest-coverage")
-
 add_subdirectory(include)
 include_directories(include ${CMAKE_BINARY_DIR}/include)
 add_subdirectory(src)
@@ -85,6 +70,7 @@ add_subdirectory(src)
 # Lint
 ###
 if (BUILD_TESTING)
+	include(cmake/Lint.txt)
 	add_lint_target("${STLINK2_HEADERS};${STLINK2_HEADERS_INTERNAL};${STLINK2_LIBRARY_SOURCE}")
 endif()
 
