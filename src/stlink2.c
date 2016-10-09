@@ -295,27 +295,42 @@ static void stlink2_dev_free(struct stlink2 **dev)
 	*dev = NULL;
 }
 
-/** @todo Move into stlink2_context */
-static libusb_context *ctx = NULL;
-
-void stlink2_init(void)
+stlink2_context_t stlink2_init(void)
 {
+	struct stlink2_context *ctx;
+
+	ctx = malloc(sizeof(struct stlink2_context));
+	if (!ctx)
+		return NULL;
+
 	int ret;
 
-	ret = libusb_init(&ctx);
-	if (ret < 0)
-		ctx = NULL;
-}
-
-void stlink2_exit(void)
-{
-	if (ctx) {
-		libusb_exit(ctx);
-		ctx = NULL;
+	ret = libusb_init(&ctx->usb);
+	if (ret < 0) {
+		free(ctx);
+		return NULL;
 	}
+
+	return ctx;
 }
 
-struct stlink2 *stlink2_open(const char *serial)
+void stlink2_exit(stlink2_context_t *ctx)
+{
+	if (!ctx)
+		return;
+
+	struct stlink2_context *_ctx;
+
+	_ctx = *ctx;
+	if (!_ctx)
+		return;
+
+	libusb_exit(_ctx->usb);
+	free(_ctx);
+	*ctx = NULL;
+}
+
+stlink2_t stlink2_open(stlink2_context_t ctx, const char *serial)
 {
 	bool found = false;
 	ssize_t cnt;
@@ -326,7 +341,7 @@ struct stlink2 *stlink2_open(const char *serial)
 	if (!ctx)
 		return NULL;
 
-	cnt = libusb_get_device_list(ctx, &devs);
+	cnt = libusb_get_device_list(ctx->usb, &devs);
 	if (cnt < 0)
 		return NULL;
 
@@ -366,20 +381,21 @@ void stlink2_close(stlink2_t *dev)
 	stlink2_dev_free(dev);
 }
 
-void stlink2_probe(stlink2_devs_t *devlist)
+void stlink2_probe(stlink2_context_t ctx, stlink2_devs_t *devlist)
 {
 	ssize_t cnt;
 	struct stlink2 *dev;
 	libusb_device **devs;
 
+	/** @todo hardcoded for now */
 	devlist->len    = 0;
 	devlist->cap    = 16;
-	devlist->serial = calloc(1, devlist->cap * sizeof(const char *)); /** @todo */
+	devlist->serial = calloc(1, devlist->cap * sizeof(const char *));
 
 	if (!ctx)
 		return;
 
-	cnt = libusb_get_device_list(ctx, &devs);
+	cnt = libusb_get_device_list(ctx->usb, &devs);
 	if (cnt < 0)
 		return;
 

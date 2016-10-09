@@ -39,6 +39,12 @@ The software is tested from time-to-time on the following platforms:
 * OpenBSD 6.0 AMD64
 * FreeBSD 11-RC2 AMD64
 
+# Contributions
+
+* Linux codestyle with some exceptions
+  * Line width 120 characters
+  * Allowed API struct typedefs
+
 # License
 
 All code is [MIT](LICENSE) licensed, except for other components under the `3thparty` folder.

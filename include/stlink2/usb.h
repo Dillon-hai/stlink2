@@ -6,8 +6,8 @@
 #ifndef STLINK2_USB_H_
 #define STLINK2_USB_H_
 
-#include <libusb.h>
 #include <stdbool.h>
+#include <libusb.h>
 
 #define STLINK2_USB_VID_ST   0x0483
 #define STLINK2_USB_PID_V1   0x3744

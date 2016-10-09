@@ -10,6 +10,10 @@
 #include <stlink2/log.h>
 #include <stlink2/usb.h>
 
+struct stlink2_context {
+	libusb_context *usb;
+};
+
 struct stlink2 {
 	char *serial;
 	const char *name;

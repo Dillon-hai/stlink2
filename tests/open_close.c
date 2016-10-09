@@ -31,61 +31,60 @@ void dump_hex(const void * data, size_t size)
 	}
 }
 
-static void test_open_close(const char *serial)
+static void test_open_close(stlink2_context_t ctx, const char *serial)
 {
 	stlink2_t dev;
 
-	dev = stlink2_open(serial);
-	if (dev) {
-		uint32_t cpuid;
-		uint16_t devid;
+	dev = stlink2_open(ctx, serial);
+	if (!dev)
+		return;
 
-		stlink2_log_set_level(dev, STLINK2_LOGLEVEL_INFO);
+	uint32_t cpuid;
+	uint16_t devid;
 
-		printf("  serial: %s\n",    stlink2_get_serial(dev));
-		printf("    name: %s\n",    stlink2_get_name(dev));
-		printf(" version: %s\n",    stlink2_get_version(dev));
+	stlink2_log_set_level(dev, STLINK2_LOGLEVEL_INFO);
 
-		stlink2_get_mode(dev);
-		stlink2_set_mode_swd(dev);
-		stlink2_mcu_halt(dev);
+	printf("  serial: %s\n",    stlink2_get_serial(dev));
+	printf("    name: %s\n",    stlink2_get_name(dev));
+	printf(" version: %s\n",    stlink2_get_version(dev));
 
-		cpuid = stlink2_get_cpuid(dev);
-		devid = stlink2_get_devid(dev);
+	stlink2_get_mode(dev);
+	stlink2_set_mode_swd(dev);
+	stlink2_mcu_halt(dev);
 
-		printf(" voltage: %f\n",    stlink2_get_target_voltage(dev));
-		printf("   cpuid: %08x\n",  cpuid);
-		printf("     partno: %03x (%s)\n", stlink2_cortexm_cpuid_get_partno(cpuid), stlink2_cortexm_cpuid_partno_str(cpuid));
-		printf("  coreid: %08x\n",  stlink2_get_coreid(dev));
-		printf("  chipid: %08x\n",  stlink2_get_chipid(dev));
-		printf("   devid: %s (0x%03x)\n", stlink2_stm32_devid_str(devid), devid);
-		printf("  flash size: %dKiB\n", stlink2_get_flash_size(dev));
-		printf("  unique id: %s\n", stlink2_get_unique_id(dev, 0x1ff800d0)); /** @todo STM32L152 now... */
+	cpuid = stlink2_get_cpuid(dev);
+	devid = stlink2_get_devid(dev);
+
+	printf(" voltage: %f\n",    stlink2_get_target_voltage(dev));
+	printf("   cpuid: %08x\n",  cpuid);
+	printf("     partno: %03x (%s)\n", stlink2_cortexm_cpuid_get_partno(cpuid), stlink2_cortexm_cpuid_partno_str(cpuid));
+	printf("  coreid: %08x\n",  stlink2_get_coreid(dev));
+	printf("  chipid: %08x\n",  stlink2_get_chipid(dev));
+	printf("   devid: %s (0x%03x)\n", stlink2_stm32_devid_str(devid), devid);
+	printf("  flash size: %dKiB\n", stlink2_get_flash_size(dev));
+	printf("  unique id: %s\n", stlink2_get_unique_id(dev, 0x1ff800d0)); /** @todo STM32L152 now... */
 
 #ifdef BLA
-		uint8_t *flash = malloc(1024);
-		stlink2_read_mem(dev, 0x08000000, flash, 1024);
-		dump_hex(flash, 1024);
+	uint8_t *flash = malloc(1024);
+	stlink2_read_mem(dev, 0x08000000, flash, 1024);
+	dump_hex(flash, 1024);
 #endif
 #ifdef SEMIHOSTING
-		while (true) {
-			if (stlink2_get_status(dev) == STLINK2_STATUS_CORE_HALTED)
-				stlink2_mcu_run(dev);
-			stlink2_semihosting(dev);
-			stlink2_msleep(1);
-		}
-#endif
+	while (true) {
+		if (stlink2_get_status(dev) == STLINK2_STATUS_CORE_HALTED)
+			stlink2_mcu_run(dev);
+		stlink2_semihosting(dev);
+		stlink2_msleep(1);
 	}
+#endif
+
 	stlink2_close(&dev);
 }
 
 int main(void)
 {
-	stlink2_init();
+	stlink2_context_t ctx = stlink2_init();
 
-	test_open_close(NULL);
-	//test_open_close("503f7206506752553329033f");
-	//test_open_close("066DFF485550755187254525");
-
-	stlink2_exit();
+	test_open_close(ctx, NULL);
+	stlink2_exit(&ctx);
 }
