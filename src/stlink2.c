@@ -4,7 +4,6 @@
  * license that can be found in the LICENSE file.
  */
 #include <stlink2-internal.h>
-#include <stlink2/log.h>
 #include <stlink2/cmd.h>
 #include <stlink2/cortexm.h>
 #include <stlink2/endian.h>
@@ -94,7 +93,7 @@ void stlink2_read_debug32(struct stlink2 *dev, uint32_t addr, uint32_t *val)
 
 	memset(_rep, 0, sizeof(_rep));
 
-	stlink2_debug_command_u32(dev, STLINK2_CMD_JTAG_READDEBUG_32BIT, addr, _rep, sizeof(_rep));
+	stlink2_debug_command_u32(dev, STLINK2_CMD_DEBUG_JTAG_READDEBUG_32BIT, addr, _rep, sizeof(_rep));
 
 	memcpy(&_val, &_rep[4], sizeof(_val));
 	*val = le32toh(_val);
@@ -106,7 +105,7 @@ static void stlink2_write_debug32(struct stlink2 *dev, uint32_t addr, uint32_t v
 	uint8_t _cmd[16];
 
 	_cmd[0] = STLINK2_CMD_DEBUG;
-	_cmd[1] = STLINK2_CMD_JTAG_WRITEDEBUG_32BIT;
+	_cmd[1] = STLINK2_CMD_DEBUG_JTAG_WRITEDEBUG_32BIT;
 
 	addr = htole32(addr);
 	val = htole32(val);

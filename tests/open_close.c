@@ -1,4 +1,4 @@
-#include <stdlib.h>
+#include <stdio.h>
 #include <stlink2.h>
 
 void dump_hex(const void * data, size_t size)

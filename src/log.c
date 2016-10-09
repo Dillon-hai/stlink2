@@ -3,7 +3,6 @@
  * Use of this source code is governed by the MIT
  * license that can be found in the LICENSE file.
  */
-#include <stlink2/log.h>
 #include <stlink2/build.h>
 #include <stlink2-internal.h>
 

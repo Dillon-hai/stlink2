@@ -85,7 +85,7 @@ add_subdirectory(src)
 # Lint
 ###
 if (BUILD_TESTING)
-	add_lint_target("${STLINK2_HEADERS};${STLINK2_LIBRARY_SOURCE}")
+	add_lint_target("${STLINK2_HEADERS};${STLINK2_HEADERS_INTERNAL};${STLINK2_LIBRARY_SOURCE}")
 endif()
 
 add_subdirectory("tests")

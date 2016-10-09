@@ -7,8 +7,8 @@
 #define STLINK2_INTERNAL_H_
 
 #include <stdint.h>
-#include <stlink2/log.h>
-#include <stlink2/usb.h>
+#include <stlink2-internal/log.h>
+#include <stlink2-internal/usb.h>
 
 struct stlink2_context {
 	libusb_context *usb;

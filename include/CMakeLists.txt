@@ -4,7 +4,7 @@ configure_file (
 )
 
 file(GLOB STLINK2_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/stlink2/*.h")
-set (STLINK2_HEADERS "${CMAKE_BINARY_DIR}/include/stlink2/build.h;${STLINK2_HEADERS}" CACHE INTERNAL "stlink2 headers")
+set (STLINK2_HEADERS "${cmake_binary_dir}/include/stlink2/build.h;${STLINK2_HEADERS}" cache internal "stlink2 headers")
 install (
 	FILES ${STLINK2_HEADERS}
 	DESTINATION include/stlink2
@@ -14,3 +14,6 @@ install (
 	FILES "${CMAKE_CURRENT_SOURCE_DIR}/stlink2.h"
 	DESTINATION include
 )
+
+file(GLOB STLINK2_HEADERS_INTERNAL "${CMAKE_CURRENT_SOURCE_DIR}/stlink2-internal/*.h")
+set (STLINK2_HEADERS_INTERNAL "${CMAKE_CURRENT_SOURCE_DIR}/stlink2-internal.h;${STLINK2_HEADERS_INTERNAL}" CACHE INTERNAL "stlink2 internal headers")
