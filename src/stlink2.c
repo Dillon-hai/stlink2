@@ -208,41 +208,49 @@ void stlink2_mcu_run(stlink2_t dev)
 	stlink2_debug_command(dev, STLINK2_CMD_DEBUG_RUN_CORE, 0, rep, sizeof(rep));
 }
 
-#ifdef XXX
+void stlink2_mcu_init(stlink2_t dev)
+{
+	stlink2_mcu_halt(dev);
+	stlink2_write_reg(dev, STLINK2_CORTEXM_REG_PC, 0);
+}
+
 void stlink2_read_all_regs(stlink2_t dev)
 {
 	uint8_t rep[84];
+	uint32_t regs[21]; /** @todo copy to app */
 
 	stlink2_debug_command(dev, STLINK2_CMD_DEBUG_READALLREGS, 0, rep, sizeof(rep));
 
+	for (size_t n = 0; n < 21; n++)
+		memcpy(&regs[n], &rep[n * 4], sizeof(regs[0]));
+
 	for (size_t n = 0; n < 21; n++) {
 		if (n < 16)
-			printf("r%zu = 0x%08x\n", n, stlink2_bconv_u32_le_to_h(&rep[n * 4]));
+			printf("r%zu = 0x%08x\n", n, regs[n]);
 		else if (n == 16)
-			printf("xPSR = 0x%08x\n", stlink2_bconv_u32_le_to_h(&rep[n * 4]));
+			printf("xPSR = 0x%08x\n", regs[n]);
 		else if (n == 17)
-			printf("MSP = 0x%08x\n", stlink2_bconv_u32_le_to_h(&rep[n * 4]));
+			printf(" MSP = 0x%08x\n", regs[n]);
 		else if (n == 18)
-			printf("PSP = 0x%08x\n", stlink2_bconv_u32_le_to_h(&rep[n * 4]));
+			printf(" PSP = 0x%08x\n", regs[n]);
 		else if (n == 19)
-			printf("RW = 0x%08x\n", stlink2_bconv_u32_le_to_h(&rep[n * 4]));
+			printf(" RW  = 0x%08x\n", regs[n]);
 		else if (n == 20)
-			printf("RW1 = 0x%08x\n", stlink2_bconv_u32_le_to_h(&rep[n * 4]));
+			printf(" RW1 = 0x%08x\n", regs[n]);
 	}
 }
-#endif
 
-void stlink2_read_reg(stlink2_t dev, uint8_t idx, uint32_t *val)
+void stlink2_read_reg(stlink2_t dev, enum stlink2_cortexm_reg reg, uint32_t *val)
 {
 	uint32_t _val;
 	uint8_t rep[8];
 
-	stlink2_debug_command(dev, STLINK2_CMD_DEBUG_READ_REG, idx, rep, sizeof(rep));
+	stlink2_debug_command(dev, STLINK2_CMD_DEBUG_READ_REG, reg, rep, sizeof(rep));
 	memcpy(&_val, &rep[4], sizeof(_val));
 	*val = le32toh(_val);
 }
 
-void stlink2_write_reg(stlink2_t dev, uint8_t idx, uint32_t val)
+void stlink2_write_reg(stlink2_t dev, enum stlink2_cortexm_reg reg, uint32_t val)
 {
 	uint8_t _cmd[STLINK2_USB_CMD_SIZE];
 	uint8_t rep[8];
@@ -250,7 +258,7 @@ void stlink2_write_reg(stlink2_t dev, uint8_t idx, uint32_t val)
 	memset(_cmd, 0, sizeof(_cmd));
 	_cmd[0] = STLINK2_CMD_DEBUG;
 	_cmd[1] = STLINK2_CMD_DEBUG_WRITE_REG;
-	_cmd[2] = idx;
+	_cmd[2] = reg;
 
 	val = htole32(val);
 	memcpy(&_cmd[3], &val, sizeof(val));

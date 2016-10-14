@@ -9,6 +9,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#include <stlink2/cortexm.h>
+
 #define STLINK2_ARRAY_SIZE(array) (sizeof(array)/sizeof(array[0]))
 
 enum stlink2_status {
@@ -63,18 +65,23 @@ void stlink2_set_mode_swd(struct stlink2 *dev);
 enum stlink2_status stlink2_get_status(struct stlink2 *dev);
 void stlink2_mcu_halt(stlink2_t dev);
 void stlink2_mcu_run(stlink2_t dev);
+void stlink2_mcu_init(stlink2_t dev);
 uint32_t stlink2_get_coreid(stlink2_t dev);
 uint32_t stlink2_get_chipid(stlink2_t dev);
 uint32_t stlink2_get_cpuid(stlink2_t dev);
 uint16_t stlink2_get_devid(stlink2_t dev);
 uint32_t stlink2_get_flash_size(stlink2_t dev);
 const char *stlink2_get_unique_id(stlink2_t dev, uint32_t addr);
-void stlink2_read_reg(stlink2_t dev, uint8_t idx, uint32_t *val);
+
 void stlink2_read_mem(stlink2_t dev, uint32_t addr, void *data, size_t len);
+
+void stlink2_read_all_regs(stlink2_t dev);
+void stlink2_read_reg(stlink2_t dev, enum stlink2_cortexm_reg reg, uint32_t *val);
+void stlink2_write_reg(stlink2_t dev, enum stlink2_cortexm_reg reg, uint32_t val);
 
 #include <stlink2/log.h>
 #include <stlink2/stm32.h>
-#include <stlink2/cortexm.h>
+
 #include <stlink2/semihosting.h>
 
 #endif /* STLINK2_H_ */

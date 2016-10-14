@@ -52,6 +52,26 @@ static void test_open_close(stlink2_context_t ctx, const char *serial)
 	stlink2_set_mode_swd(dev);
 	stlink2_mcu_halt(dev);
 
+	uint32_t pc;
+
+	stlink2_read_reg(dev, STLINK2_CORTEXM_REG_PC, &pc);
+	printf(" PC: 0x%08x\n", pc);
+	stlink2_read_all_regs(dev);
+
+	stlink2_mcu_init(dev);
+	stlink2_read_reg(dev, STLINK2_CORTEXM_REG_PC, &pc);
+	printf(" PC: 0x%08x\n", pc);
+
+	uint32_t xpsr;
+	stlink2_read_reg(dev, STLINK2_CORTEXM_REG_XPSR, &xpsr);
+	printf(" xPSR: 0x%08x\n", xpsr);
+
+	uint32_t control;
+	stlink2_read_reg(dev, STLINK2_CORTEXM_REG_CONTROL, &control);
+	printf(" CONTROL: 0x%08x\n", control);
+
+
+
 	cpuid = stlink2_get_cpuid(dev);
 	devid = stlink2_get_devid(dev);
 
@@ -78,6 +98,7 @@ static void test_open_close(stlink2_context_t ctx, const char *serial)
 	}
 #endif
 
+	stlink2_mcu_run(dev);
 	stlink2_close(&dev);
 }
 
