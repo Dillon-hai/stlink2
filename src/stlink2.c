@@ -43,7 +43,8 @@ enum stlink2_mode stlink2_get_mode(struct stlink2 *dev)
 	return rep[0];
 }
 
-static void stlink2_command(struct stlink2 *dev, uint8_t cmd, uint8_t param, uint8_t *buf, size_t bufsize)
+static void stlink2_command(struct stlink2 *dev, const uint8_t cmd, const uint8_t param,
+			    uint8_t *buf, const size_t bufsize)
 {
 	uint8_t _cmd[STLINK2_USB_CMD_SIZE];
 
@@ -54,7 +55,8 @@ static void stlink2_command(struct stlink2 *dev, uint8_t cmd, uint8_t param, uin
 	stlink2_usb_send_recv(dev, _cmd, STLINK2_USB_CMD_SIZE, buf, bufsize);
 }
 
-static void stlink2_debug_command(struct stlink2 *dev, uint8_t cmd, uint8_t param, uint8_t *buf, size_t bufsize)
+static void stlink2_debug_command(struct stlink2 *dev, const uint8_t cmd, const uint8_t param,
+				  uint8_t *buf, const size_t bufsize)
 {
 	uint8_t _cmd[STLINK2_USB_CMD_SIZE];
 
@@ -66,7 +68,8 @@ static void stlink2_debug_command(struct stlink2 *dev, uint8_t cmd, uint8_t para
 	stlink2_usb_send_recv(dev, _cmd, STLINK2_USB_CMD_SIZE, buf, bufsize);
 }
 
-static void stlink2_debug_command_u32(struct stlink2 *dev, uint8_t cmd, uint32_t param, uint8_t *buf, size_t bufsize)
+static void stlink2_debug_command_u32(struct stlink2 *dev, const uint8_t cmd, uint32_t param,
+				      uint8_t *buf, const size_t bufsize)
 {
 	uint8_t _cmd[1 + sizeof(cmd) + sizeof(param)];
 
@@ -80,7 +83,7 @@ static void stlink2_debug_command_u32(struct stlink2 *dev, uint8_t cmd, uint32_t
 	stlink2_usb_send_recv(dev, _cmd, sizeof(_cmd), buf, bufsize);
 }
 
-void stlink2_read_debug16(struct stlink2 *dev, uint32_t addr, uint16_t *val)
+void stlink2_read_debug16(struct stlink2 *dev, const uint32_t addr, uint16_t *val)
 {
 	uint32_t _val;
 
@@ -90,7 +93,7 @@ void stlink2_read_debug16(struct stlink2 *dev, uint32_t addr, uint16_t *val)
 	*val = _val & 0xffff;
 }
 
-void stlink2_read_debug32(struct stlink2 *dev, uint32_t addr, uint32_t *val)
+void stlink2_read_debug32(struct stlink2 *dev, const uint32_t addr, uint32_t *val)
 {
 	uint32_t _val;
 	uint8_t _rep[8];

@@ -3,6 +3,10 @@
  * Use of this source code is governed by the MIT
  * license that can be found in the LICENSE file.
  */
+
+/**
+ * @file stlink2/cmd.h
+ */
 #ifndef STLINK2_CMD_H_
 #define STLINK2_CMD_H_
 
@@ -15,7 +19,7 @@ enum stlink2_cmd {
 	STLINK2_CMD_DFU_EXIT           = 0x07,
 	STLINK2_CMD_DFU_GET_VERSION    = 0x08,
 	STLINK2_CMD_GET_CURRENT_MODE   = 0xf5,
-	STLINK2_CMD_GET_TARGET_VOLTAGE = 0xf7,
+	STLINK2_CMD_GET_TARGET_VOLTAGE = 0xf7
 };
 
 enum stlink2_cmd_debug {

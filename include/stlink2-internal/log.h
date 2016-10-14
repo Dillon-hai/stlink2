@@ -3,12 +3,19 @@
  * Use of this source code is governed by the MIT
  * license that can be found in the LICENSE file.
  */
+
+/**
+ * @file stlink2-internal/log.h
+ */
 #ifndef STLINK2_INTERNAL_LOG_H_
 #define STLINK2_INTERNAL_LOG_H_
 
 #include <stdio.h>
 #include <stdarg.h>
 #include <stlink2.h>
+
+#define STLINK2_LOG_DEFAULT_LEVEL STLINK2_LOGLEVEL_QUIET
+#define STLINK2_LOG_DEFAULT_FILE  NULL
 
 #define STLINK2_LOG(level, dev, format, ...) \
 	stlink2_log(STLINK2_LOGLEVEL_##level, __FILE__, __LINE__, __func__, dev, format, ##__VA_ARGS__)

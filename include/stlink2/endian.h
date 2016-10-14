@@ -5,8 +5,27 @@
  * Use of this source code is governed by the MIT
  * license that can be found in the LICENSE file.
  */
+
+/**
+ * @file stlink2/endian.h
+ */
 #ifndef STLINK2_ENDIAN_H__
 #define STLINK2_ENDIAN_H__
+
+#if defined(__DOXYGEN__)
+#define htobe16(x) /**< Host to big endian u16 */
+#define htole16(x) /**< Host to little endian u16 */
+#define be16toh(x) /**< Big endian to host u16 */
+#define le16toh(x) /**< Little endian to host u16 */
+#define htobe32(x) /**< Host to big endian u32 */
+#define htole32(x) /**< Host to little endian u32 */
+#define be32toh(x) /**< Big endian to host u32 */
+#define le32toh(x) /**< Little endian to host u32 */
+#define htobe64(x) /**< Host to big endian u64 */
+#define htole64(x) /**< Host to little endian u64 */
+#define be64toh(x) /**< Big endian to host u64 */
+#define le64toh(x) /**< Little endian to host u64 */
+#endif
 
 #if (defined(_WIN16) || defined(_WIN32) || defined(_WIN64)) && !defined(__WINDOWS__)
 #define __WINDOWS__
@@ -69,7 +88,6 @@
 #		define be64toh(x) ntohll(x)
 #		define le64toh(x) (x)
 #	elif BYTE_ORDER == BIG_ENDIAN
-		/* that would be xbox 360 */
 #		define htobe16(x) (x)
 #		define htole16(x) __builtin_bswap16(x)
 #		define be16toh(x) (x)

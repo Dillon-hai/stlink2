@@ -23,10 +23,12 @@ As it only uses the CMake build system it doesn't depend on obsecure non-portabl
 * C99 compatible compiler (gcc, clang, msvc)
 * CMake 2.8 or higher
 * libusb 1.0.9 or higher
+* Doxygen
 
 ```
 make debug
 make release
+make doc
 make test
 ```
 

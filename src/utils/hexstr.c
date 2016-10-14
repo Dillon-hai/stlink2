@@ -18,7 +18,7 @@
  * Binary to hex char map
  * 0 -> '0' .. 15 -> 'f'
  */
-static char stlink2_hexstr_byte_map[16] = {
+static const char stlink2_hexstr_byte_map[16] = {
 	'0', '1', '2', '3',
 	'4', '5', '6', '7',
 	'8', '9', 'a', 'b',
@@ -29,7 +29,7 @@ static char stlink2_hexstr_byte_map[16] = {
  * Convert ascii hex nibble character to binary
  *  e,g 'a' -> 0xa
  */
-static uint8_t stlink2_hexstr_char_to_bin(char c)
+static uint8_t stlink2_hexstr_char_to_bin(const char c)
 {
 	if (c >= '0' && c <= '9')
 		return (c - '0');
@@ -42,8 +42,8 @@ static uint8_t stlink2_hexstr_char_to_bin(char c)
 }
 
 void stlink2_hexstr_to_bin(
-	void *dst, size_t dst_len,
-	const void *src, size_t src_len)
+	void *dst, const size_t dst_len,
+	const void *src, const size_t src_len)
 {
 	size_t n;
 	size_t nibble = 0;
@@ -70,8 +70,8 @@ void stlink2_hexstr_to_bin(
 }
 
 void stlink2_hexstr_from_bin(
-	void *dst, size_t dst_len,
-	const void *src, size_t src_len)
+	void *dst, const size_t dst_len,
+	const void *src, const size_t src_len)
 {
 	size_t n;
 	char *_dst = (char *)dst;

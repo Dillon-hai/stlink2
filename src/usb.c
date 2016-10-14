@@ -128,8 +128,8 @@ bool stlink2_usb_probe_dev(libusb_device *dev, struct stlink2 *st, bool attach)
 		return false;
 	}
 
-	stlink2_log_set_file(st, stdout);
-	stlink2_log_set_level(st, STLINK2_LOGLEVEL_INFO);
+	stlink2_log_set_file(st,  STLINK2_LOG_DEFAULT_FILE);
+	stlink2_log_set_level(st, STLINK2_LOG_DEFAULT_LEVEL);
 
 	st->serial = stlink2_usb_read_serial(st, devh, &desc);
 	if (!st->serial) {
