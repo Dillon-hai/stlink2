@@ -3,6 +3,10 @@
  * Use of this source code is governed by the MIT
  * license that can be found in the LICENSE file.
  */
+
+/**
+ * @file src/stm32.c
+ */
 #include <stlink2.h>
 
 const char *stlink2_stm32_devid_str(uint32_t devid)

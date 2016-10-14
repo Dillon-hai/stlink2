@@ -1,7 +1,7 @@
 MAKEFLAGS+=-s
 
 all: debug
-ci: lint debug release test
+ci: lint debug release doc test
 
 help:
 	@echo "      release: Run a release build"
@@ -30,6 +30,10 @@ install: release
 lint: build/Debug
 	@echo "[LINT]"
 	@$(MAKE) -C build/Debug lint
+
+doc: build/Debug
+	@echo "[DOC]"
+	@$(MAKE) -C build/Debug doc
 
 analyze:
 	@scan-build -o build/Analyze --status-bugs make debug

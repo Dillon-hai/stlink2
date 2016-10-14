@@ -3,6 +3,10 @@
  * Use of this source code is governed by the MIT
  * license that can be found in the LICENSE file.
  */
+
+/**
+ * @file src/cortexm.c
+ */
 #include <stlink2/cortexm.h>
 
 enum stlink2_cortexm_cpuid_partno stlink2_cortexm_cpuid_get_partno(uint32_t cpuid)

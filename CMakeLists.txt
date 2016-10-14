@@ -15,6 +15,7 @@ endif ()
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 include(cmake/Version.txt)
+include(cmake/Doxygen.txt)
 include(cmake/CheckCCompilerFlag.txt)
 
 if (WIN32)

@@ -5,6 +5,10 @@
  */
 #include <stlink2.h>
 
+/**
+ * @file src/utils/hexstr.c
+ */
+
 #ifdef STLINK2_HAVE_WINDOWS
 #include <windows.h>
 
