@@ -8,6 +8,7 @@ set(TESTS
 	log
 	open_close
 	probe
+	ihex
 )
 
 include_directories(SYSTEM ${LIBUSB_INCLUDE_DIR})

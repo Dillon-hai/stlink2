@@ -10,6 +10,7 @@ set (STLINK2_LIBRARY_SOURCE
 	"${CMAKE_CURRENT_SOURCE_DIR}/semihosting.c"
 	"${CMAKE_CURRENT_SOURCE_DIR}/utils/hexstr.c"
 	"${CMAKE_CURRENT_SOURCE_DIR}/utils/msleep.c"
+	"${CMAKE_CURRENT_SOURCE_DIR}/utils/ihex.c"
 	CACHE INTERNAL "stlink2 library source files"
 )
 
