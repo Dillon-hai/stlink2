@@ -94,6 +94,19 @@ void stlink2_flag_set_parse(struct stlink2_flag_set *self, int argc, const char 
 	}
 }
 
+struct stlink2_flag *stlink2_flag_set_get_by_name(struct stlink2_flag_set *self, const char *name)
+{
+	for (size_t n = 0; n < sizeof(self->flags)/sizeof(self->flags[0]); n++) {
+		struct stlink2_flag *f = &self->flags[n];
+		if (!f->name)
+			continue;
+		if (strcmp(name, f->name) == 0)
+			return f;
+	}
+
+	return NULL;
+}
+
 void stlink2_flag_set_bool(struct stlink2_flag_set *self, bool *value, const char *name, const char *help)
 {
 	(void)value;
@@ -103,9 +116,10 @@ void stlink2_flag_set_bool(struct stlink2_flag_set *self, bool *value, const cha
 		if (f->name)
 			continue;
 
-		f->name = name;
-		f->help = help;
-		f->type = STLINK2_FLAG_TYPE_BOOL;
+		f->name  = name;
+		f->help  = help;
+		f->value = value;
+		f->type  = STLINK2_FLAG_TYPE_BOOL;
 
 		self->nflags++;
 		break;
@@ -141,10 +155,33 @@ void stlink2_flag_set_usage(const char *usage)
 	g_flag_set.usage = usage;
 }
 
-void stlink2_flag_parse(int argc, const char *argv[])
+void stlink2_flag_usage(void)
 {
-	(void)argc;
-	(void)argv;
-
 	stlink2_flag_set_write_usage(stdout, &g_flag_set);
+}
+
+void stlink2_flag_parse(const int argc, const char *argv[])
+{
+	if (argc < 2) {
+		stlink2_flag_usage();
+		return;
+	}
+
+	for (size_t n = 1; n < (size_t)argc; n++) {
+		struct stlink2_flag *f = stlink2_flag_set_get_by_name(&g_flag_set, argv[n]);
+		if (!f)
+			continue;
+
+		switch (f->type) {
+			case STLINK2_FLAG_TYPE_STRING:
+				//fprintf(fp, " (%s)", *(char **) flag->value);
+				break;
+			case STLINK2_FLAG_TYPE_INT:
+				//fprintf(fp, " (%d)", *(int *) flag->value);
+				break;
+			case STLINK2_FLAG_TYPE_BOOL:
+				*(bool *)f->value = true;
+				break;
+		}
+	}
 }

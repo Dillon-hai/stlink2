@@ -42,6 +42,7 @@ struct stlink2_flag {
 
 void stlink2_flag_set_cmd_name(const char *name);
 void stlink2_flag_set_usage(const char *usage);
+void stlink2_flag_usage(void);
 
 void stlink2_flag_int(int *value, const char *name, const char *help);
 void stlink2_flag_bool(bool *value, const char *name, const char *help);
