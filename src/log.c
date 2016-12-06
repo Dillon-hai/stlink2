@@ -54,7 +54,7 @@ void stlink2_log(enum stlink2_loglevel level, const char *file, unsigned int lin
 
 	if (file && line && function) {
 		file = stlink2_log_file_strip_prefix(file, STLINK2_BUILD_SOURCE_DIR);
-		fprintf(dev->log.fp, "%s (%s) %s:%d : ", stlink2_loglevel_str(level), function, file, line);
+		fprintf(dev->log.fp, "%s (%s) %s:%u : ", stlink2_loglevel_str(level), function, file, line);
 	}
 
 	va_start(args, format);

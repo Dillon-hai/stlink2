@@ -80,8 +80,10 @@ void stlink2_read_reg(stlink2_t dev, enum stlink2_cortexm_reg reg, uint32_t *val
 void stlink2_write_reg(stlink2_t dev, enum stlink2_cortexm_reg reg, uint32_t val);
 
 #include <stlink2/log.h>
+#include <stlink2/build.h>
 #include <stlink2/stm32.h>
-
 #include <stlink2/semihosting.h>
+
+#include <stlink2/utils/flag.h>
 
 #endif /* STLINK2_H_ */

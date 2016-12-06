@@ -70,8 +70,6 @@ static void test_open_close(stlink2_context_t ctx, const char *serial)
 	stlink2_read_reg(dev, STLINK2_CORTEXM_REG_CONTROL, &control);
 	printf(" CONTROL: 0x%08x\n", control);
 
-
-
 	cpuid = stlink2_get_cpuid(dev);
 	devid = stlink2_get_devid(dev);
 

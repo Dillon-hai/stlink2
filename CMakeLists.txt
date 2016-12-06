@@ -12,6 +12,7 @@ if (POLICY CMP0042)
 	cmake_policy (SET CMP0042 NEW)
 endif ()
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS On)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 include(cmake/Version.txt)

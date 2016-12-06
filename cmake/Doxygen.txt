@@ -7,25 +7,24 @@ find_package(Doxygen)
 option(BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
 
 if (BUILD_DOCUMENTATION)
-    if(NOT DOXYGEN_FOUND)
-        message(FATAL_ERROR "Doxygen is needed to build the documentation.")
-    endif()
+	if (NOT DOXYGEN_FOUND)
+		message(FATAL_ERROR "Doxygen is needed to build the documentation.")
+	endif ()
 
-    set(doxyfile_in ${PROJECT_SOURCE_DIR}/cmake/Doxyfile.in)
-    set(doxyfile ${CMAKE_BINARY_DIR}/doc/Doxyfile)
+	set(doxyfile_in ${PROJECT_SOURCE_DIR}/cmake/Doxyfile.in)
+	set(doxyfile ${CMAKE_BINARY_DIR}/doc/Doxyfile)
 
-    configure_file(${doxyfile_in} ${doxyfile} @ONLY)
+	configure_file(${doxyfile_in} ${doxyfile} @ONLY)
 
-    add_custom_target(doc
-        COMMAND ${DOXYGEN_EXECUTABLE} ${doxyfile}
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/doc
-        COMMENT "Generating API documentation with Doxygen"
-        VERBATIM)
+	add_custom_target(doc
+		COMMAND ${DOXYGEN_EXECUTABLE} ${doxyfile}
+		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/doc
+		COMMENT "Generating API documentation with Doxygen"
+		VERBATIM)
 
-    install(DIRECTORY ${CMAKE_BINARY_DIR}/doc/html DESTINATION share/doc)
+	install(DIRECTORY ${CMAKE_BINARY_DIR}/doc/html DESTINATION share/doc)
 else ()
 	message(AUTHOR_WARNING "Doxygen is needed to build the documentation.")
 	add_custom_target(doc
-		COMMAND ${CMAKE_EXECUTABLE}
-	)
+		COMMAND ${CMAKE_EXECUTABLE})
 endif()

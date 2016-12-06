@@ -2,16 +2,16 @@
 # Library source
 ###
 set (STLINK2_LIBRARY_SOURCE
-	"${CMAKE_CURRENT_SOURCE_DIR}/stlink2.c"
-	"${CMAKE_CURRENT_SOURCE_DIR}/cortexm.c"
-	"${CMAKE_CURRENT_SOURCE_DIR}/log.c"
-	"${CMAKE_CURRENT_SOURCE_DIR}/usb.c"
-	"${CMAKE_CURRENT_SOURCE_DIR}/stm32.c"
-	"${CMAKE_CURRENT_SOURCE_DIR}/semihosting.c"
-	"${CMAKE_CURRENT_SOURCE_DIR}/utils/hexstr.c"
-	"${CMAKE_CURRENT_SOURCE_DIR}/utils/msleep.c"
-	"${CMAKE_CURRENT_SOURCE_DIR}/utils/ihex.c"
-	CACHE INTERNAL "stlink2 library source files"
+	"stlink2.c"
+	"cortexm.c"
+	"log.c"
+	"usb.c"
+	"stm32.c"
+	"semihosting.c"
+	"utils/hexstr.c"
+	"utils/msleep.c"
+	"utils/ihex.c"
+	"utils/flag.c"
 )
 
 ###
@@ -76,3 +76,5 @@ install (TARGETS
 	${STLINK2_LIBRARY_SHARED}
 	DESTINATION lib
 )
+
+add_subdirectory(cmd/stlink2)
