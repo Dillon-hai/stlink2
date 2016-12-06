@@ -40,26 +40,8 @@ struct stlink2_flag {
 	void *value;
 };
 
-/*
- * Flagset contains a number of flags,
- * and is populated wth argc / argv with the
- * remaining arguments.
- *
- * In the event of an error the error union
- * is populated with either the flag or the
- * associated argument.
- */
-struct stlink2_flag_set {
-	const char *usage;
-	int nflags;
-	struct stlink2_flag flags[STLINK2_FLAGS_MAX];
-	int argc;
-	const char *argv[STLINK2_FLAGS_MAX_ARGS];
-	union {
-		struct stlink2_flag *flag;
-		const char *arg;
-	} error;
-};
+void stlink2_flag_set_cmd_name(const char *name);
+void stlink2_flag_set_usage(const char *usage);
 
 void stlink2_flag_int(int *value, const char *name, const char *help);
 void stlink2_flag_bool(bool *value, const char *name, const char *help);
@@ -68,6 +50,6 @@ void stlink2_flag_string(const char **value, const char *name, const char *help)
 /**
  * Parse commandline arguments from OS
  */
-void stlink2_flag_parse(int argc, const char *argv[], const char *version);
+void stlink2_flag_parse(int argc, const char *argv[]);
 
 #endif /* STLINK2_UTIL_FLAG_H_ */

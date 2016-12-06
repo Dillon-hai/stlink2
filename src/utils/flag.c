@@ -7,11 +7,33 @@
 #include <stlink2/utils/flag.h>
 #include <string.h>
 
+/*
+ * Flagset contains a number of flags,
+ * and is populated wth argc / argv with the
+ * remaining arguments.
+ *
+ * In the event of an error the error union
+ * is populated with either the flag or the
+ * associated argument.
+ */
+struct stlink2_flag_set {
+	const char *cmd_name;
+	const char *usage;
+	size_t nflags;
+	struct stlink2_flag flags[STLINK2_FLAGS_MAX];
+	int argc;
+	const char *argv[STLINK2_FLAGS_MAX_ARGS];
+	union {
+		struct stlink2_flag *flag;
+		const char *arg;
+	} error;
+};
+
 static struct stlink2_flag_set g_flag_set;
 
 static bool stlink2_flag_is_flag(const char *s)
 {
-	return strlen(s) > 2 && s[0] == '-' && s[1] == '-';
+	return strlen(s) > 1 && s[0] == '-';
 }
 
 /*
@@ -22,7 +44,7 @@ static size_t stlink2_flag_set_largest_flag_size(struct stlink2_flag_set *self)
 {
 	size_t max = 0;
 
-	for (int i = 0; i < self->nflags; ++i) {
+	for (size_t i = 0; i < self->nflags; ++i) {
 		struct stlink2_flag *flag = &self->flags[i];
 		size_t len = strlen(flag->name);
 		if (len)
@@ -32,17 +54,17 @@ static size_t stlink2_flag_set_largest_flag_size(struct stlink2_flag_set *self)
 	return max;
 }
 
-void stlink2_flag_set_write_usage(struct stlink2_flag_set *self, FILE *fp, const char *name)
+void stlink2_flag_set_write_usage(FILE *fp, struct stlink2_flag_set *self)
 {
-	fprintf(fp, "\nUsage: %s %s\n", name, self->usage);
-	fprintf(fp, "\nOptions:\n");
+	fprintf(fp, "\nUsage:\n\n\t%s %s\n", self->cmd_name, self->usage);
+	fprintf(fp, "\nThe commands are:\n\n");
 
 	const size_t max = stlink2_flag_set_largest_flag_size(self);
 
-	for (int i = 0; i < self->nflags; ++i) {
+	for (size_t i = 0; i < self->nflags; i++) {
 		const struct stlink2_flag *flag = &self->flags[i];
 
-		fprintf(fp, "		--%-*s %s", (int)max+1, flag->name, flag->help);
+		fprintf(fp, "	%-*s %s", (int)max+1, flag->name, flag->help);
 		switch (flag->type) {
 			case STLINK2_FLAG_TYPE_STRING:
 				fprintf(fp, " (%s)", *(char **) flag->value);
@@ -74,10 +96,20 @@ void stlink2_flag_set_parse(struct stlink2_flag_set *self, int argc, const char 
 
 void stlink2_flag_set_bool(struct stlink2_flag_set *self, bool *value, const char *name, const char *help)
 {
-	(void)self;
 	(void)value;
-	(void)name;
-	(void)help;
+
+	for (size_t n = 0; n < sizeof(self->flags)/sizeof(self->flags[0]); n++) {
+		struct stlink2_flag *f = &self->flags[n];
+		if (f->name)
+			continue;
+
+		f->name = name;
+		f->help = help;
+		f->type = STLINK2_FLAG_TYPE_BOOL;
+
+		self->nflags++;
+		break;
+	}
 }
 
 void stlink2_flag_int(int *value, const char *name, const char *help)
@@ -89,9 +121,7 @@ void stlink2_flag_int(int *value, const char *name, const char *help)
 
 void stlink2_flag_bool(bool *value, const char *name, const char *help)
 {
-	(void)value;
-	(void)name;
-	(void)help;
+	stlink2_flag_set_bool(&g_flag_set, value, name, help);
 }
 
 void stlink2_flag_string(const char **value, const char *name, const char *help)
@@ -101,16 +131,20 @@ void stlink2_flag_string(const char **value, const char *name, const char *help)
 	(void)help;
 }
 
-void stlink2_flag_parse(int argc, const char *argv[], const char *version)
+void stlink2_flag_set_cmd_name(const char *name)
+{
+	g_flag_set.cmd_name = name;
+}
+
+void stlink2_flag_set_usage(const char *usage)
+{
+	g_flag_set.usage = usage;
+}
+
+void stlink2_flag_parse(int argc, const char *argv[])
 {
 	(void)argc;
-	(void)version;
+	(void)argv;
 
-	bool show_version = false;
-	bool show_help = false;
-
-	stlink2_flag_set_bool(&g_flag_set, &show_version, "version", "Output version");
-	stlink2_flag_set_bool(&g_flag_set, &show_help, "help", "Output help");
-
-	stlink2_flag_set_write_usage(&g_flag_set, stdout, argv[0]);
+	stlink2_flag_set_write_usage(stdout, &g_flag_set);
 }
