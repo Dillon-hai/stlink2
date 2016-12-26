@@ -24,8 +24,13 @@ release: build/Release
 	@$(MAKE) -C build/Release
 
 install: release
-	@echo "[PACKAGE] Release"
+	@echo "[INSTALL] Release"
 	@$(MAKE) -C build/Release install DESTDIR=_install
+
+package: release
+	@echo "[PACKAGE] Release"
+	@$(MAKE) -C build/Release doc
+	@$(MAKE) -C build/Release package
 
 lint: build/Debug
 	@echo "[LINT]"
@@ -52,5 +57,7 @@ build/Release:
 clean:
 	@echo "[CLEAN]"
 	@rm -Rf build
+
+
 
 .PHONY: clean

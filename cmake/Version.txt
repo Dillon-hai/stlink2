@@ -49,3 +49,9 @@ if (${CMAKE_BUILD_TYPE} MATCHES "Debug")
 	message(STATUS "stlink2 version: ${STLINK2_VERSION}")
 	message(STATUS "           Major ${STLINK2_VERSION_MAJOR} Minor ${STLINK2_VERSION_MINOR} Patch ${STLINK2_VERSION_PATCH}")
 endif()
+
+# CMake compatability
+set(PROJECT_VERSION_MAJOR "${STLINK2_VERSION_MAJOR}" CACHE INTERNAL "Project major version")
+set(PROJECT_VERSION_MINOR "${STLINK2_VERSION_MINOR}" CACHE INTERNAL "Project minor version")
+set(PROJECT_VERSION_PATCH "${STLINK2_VERSION_PATCH}" CACHE INTERNAL "Project patch version")
+set(PROJECT_VERSION "${STLINK2_VERSION}" CACHE INTERNAL "CMake Project Version")

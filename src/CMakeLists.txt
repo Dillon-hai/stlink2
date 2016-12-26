@@ -4,6 +4,7 @@
 set (STLINK2_LIBRARY_SOURCE
 	"stlink2.c"
 	"cortexm.c"
+	"flash.c"
 	"log.c"
 	"usb.c"
 	"stm32.c"

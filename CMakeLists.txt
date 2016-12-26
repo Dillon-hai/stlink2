@@ -22,9 +22,9 @@ include(cmake/CheckCCompilerFlag.txt)
 include (TestBigEndian)
 TEST_BIG_ENDIAN(IS_BIG_ENDIAN)
 if(IS_BIG_ENDIAN)
- message(STATUS "BIG_ENDIAN")
+	message(STATUS "BIG_ENDIAN")
 else()
- message(STATUS "LITTLE_ENDIAN")
+	message(STATUS "LITTLE_ENDIAN")
 endif()
 
 if (WIN32)
@@ -85,3 +85,6 @@ if (BUILD_TESTING)
 endif()
 
 add_subdirectory("tests")
+
+include(cmake/CPackConfig.txt)
+include(CPack)

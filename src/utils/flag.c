@@ -31,7 +31,7 @@ struct stlink2_flag_set {
 
 static struct stlink2_flag_set g_flag_set;
 
-static bool stlink2_flag_is_flag(const char *s)
+bool stlink2_flag_is_flag(const char *s)
 {
 	return strlen(s) > 1 && s[0] == '-';
 }
@@ -79,19 +79,6 @@ void stlink2_flag_set_write_usage(FILE *fp, struct stlink2_flag_set *self)
 	}
 
 	fprintf(fp, "\n");
-}
-
-void stlink2_flag_set_parse(struct stlink2_flag_set *self, int argc, const char **args)
-{
-	(void)self;
-
-	for (int i = 0; i < argc; i++) {
-		const char *arg = args[i];
-
-		if (!stlink2_flag_is_flag(arg))
-			continue;
-
-	}
 }
 
 struct stlink2_flag *stlink2_flag_set_get_by_name(struct stlink2_flag_set *self, const char *name)
