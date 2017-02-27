@@ -24,7 +24,7 @@ if (GIT_FOUND AND EXISTS "${CMAKE_SOURCE_DIR}/.git")
 endif()
 
 string(REGEX REPLACE "^(0|[1-9][0-9]*)[.](0|[1-9][0-9]*)[.](0|[1-9][0-9]*)(-[.0-9A-Za-z-]+)?([+][.0-9A-Za-z-]+)?$"
-                     "\\1;\\2;\\3" STLINK2_VERSION_LIST ${STLINK2_VERSION})
+                     "\\1;\\2;\\3" STLINK2_VERSION_LIST "${STLINK2_VERSION}")
 list(LENGTH STLINK2_VERSION_LIST len)
 if(len EQUAL 3)
 	list(GET STLINK2_VERSION_LIST 0 STLINK2_VERSION_MAJOR)
