@@ -289,8 +289,10 @@ static int os_date (lua_State *L) {
   }
   else
     stm = l_localtime(&t, &tmr);
-  if (stm == NULL)  /* invalid date? */
+  if (stm == NULL) { /* invalid date? */
     luaL_error(L, "time result cannot be represented in this installation");
+    return 0;
+  }
   if (strcmp(s, "*t") == 0) {
     lua_createtable(L, 0, 9);  /* 9 = number of fields */
     setallfields(L, stm);
