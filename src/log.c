@@ -9,6 +9,7 @@
  */
 #include <stlink2/build.h>
 #include <stlink2-internal.h>
+#include <string.h>
 
 static const char *stlink2_loglevel_str(enum stlink2_loglevel level)
 {
@@ -30,32 +31,16 @@ static const char *stlink2_loglevel_str(enum stlink2_loglevel level)
 	return "";
 }
 
-static const char *stlink2_log_file_strip_prefix(const char *file, const char *prefix)
-{
-	const char *_file = file;
-
-	for (size_t n = 0; ; n++) {
-		if (file[n] == 0 || prefix[n] == 0) {
-			_file = &file[n];
-			break;
-		}
-	}
-
-	return _file;
-}
-
 void stlink2_log(enum stlink2_loglevel level, const char *file, unsigned int line, const char *function, stlink2_t dev,
 		 const char *format, ...)
 {
-	if (!dev->log.fp || level > dev->log.level)
+	if (!dev->log.fp || dev->log.level < level)
 		return;
 
 	va_list args;
 
-	if (file && line && function) {
-		file = stlink2_log_file_strip_prefix(file, STLINK2_BUILD_SOURCE_DIR);
+	if (file && line && function)
 		fprintf(dev->log.fp, "%s (%s) %s:%u : ", stlink2_loglevel_str(level), function, file, line);
-	}
 
 	va_start(args, format);
 	vfprintf(dev->log.fp, format, args);
@@ -67,7 +52,35 @@ void stlink2_log_set_file(stlink2_t dev, FILE *file)
 	dev->log.fp = file;
 }
 
+void stlink2_log_set_filename(stlink2_t dev, const char *filename)
+{
+	if (!filename)
+		return;
+
+	if (strcmp(filename, "stdout") == 0)
+		stlink2_log_set_file(dev, stdout); 
+	else if (strcmp(filename, "stderr") == 0)
+		stlink2_log_set_file(dev, stderr); 
+}
+
 void stlink2_log_set_level(stlink2_t dev, enum stlink2_loglevel level)
 {
 	dev->log.level = level;
+}
+
+void stlink2_log_set_level_str(stlink2_t dev, const char *level)
+{
+	if (!level)
+		return;
+
+	if (strcmp(level, "error") == 0)
+		stlink2_log_set_level(dev, STLINK2_LOGLEVEL_ERROR);
+	else if (strcmp(level, "warn") == 0)
+		stlink2_log_set_level(dev, STLINK2_LOGLEVEL_WARN);
+	else if (strcmp(level, "info") == 0)
+		stlink2_log_set_level(dev, STLINK2_LOGLEVEL_INFO);
+	else if (strcmp(level, "debug") == 0)
+		stlink2_log_set_level(dev, STLINK2_LOGLEVEL_DEBUG);
+	else if (strcmp(level, "trace") == 0)
+		stlink2_log_set_level(dev, STLINK2_LOGLEVEL_TRACE);
 }

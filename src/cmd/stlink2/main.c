@@ -1,4 +1,16 @@
 #include <stlink2.h>
+#include <string.h>
+#ifdef STLINK2_HAS_LUA
+#include <stlink2/lua.h>
+#include <lauxlib.h>
+#include <lualib.h>
+#endif
+
+void stlink2_dev_set_env(stlink2_t dev)
+{
+	stlink2_log_set_filename(dev, getenv("STLINK2_LOGFILE"));
+	stlink2_log_set_level_str(dev, getenv("STLINK2_LOGLEVEL"));
+}
 
 void stlink2_cmd_probe(void)
 {
@@ -12,8 +24,11 @@ void stlink2_cmd_probe(void)
 
 		for (size_t n = 0; n < devs.len; n++) {
 			stlink2_t dev = stlink2_open(ctx, devs.serial[n]);
+			stlink2_dev_set_env(dev);
 			if (!dev)
 				return;
+
+			stlink2_reset(&dev);
 
 			printf("\n  serial: %s\n", stlink2_get_serial(dev));
 			printf("    name: %s\n", stlink2_get_name(dev));
@@ -33,11 +48,27 @@ void stlink2_cmd_version(void)
 	printf("%s\n", STLINK2_VERSION);
 }
 
+#ifdef STLINK2_HAS_LUA
+void stlink2_cmd_script(const char *filename)
+{
+	lua_State *lua = luaL_newstate();
+	luaL_openlibs(lua);
+
+	luaopen_stlink2(lua);
+	(void)luaL_dofile(lua, filename);
+
+	lua_close(lua);
+}
+#endif
+
 int main(const int argc, const char *argv[])
 {
 	bool cmd_version = false;
 	bool cmd_help = false;
 	bool cmd_probe = false;
+#ifdef STLINK2_HAS_LUA
+	bool cmd_script = false;
+#endif
 
 	stlink2_flag_set_cmd_name("stlink2");
 	stlink2_flag_set_usage("command [arguments]");
@@ -45,15 +76,20 @@ int main(const int argc, const char *argv[])
 	stlink2_flag_bool(&cmd_version, "version", "print stlink2 version");
 	stlink2_flag_bool(&cmd_help, "help", "print command help");
 	stlink2_flag_bool(&cmd_probe, "probe", "probe all stlink2 programmers");
+#ifdef STLINK2_HAS_LUA
+	stlink2_flag_bool(&cmd_script, "script", "run stlink2 lua script");
+#endif
 
 	stlink2_flag_parse(argc, argv);
 
-	if (cmd_help)
-		stlink2_flag_usage();
-	else if (cmd_version)
+	if (cmd_version)
 		stlink2_cmd_version();
 	else if (cmd_probe)
 		stlink2_cmd_probe();
+#ifdef STLINK2_HAS_LUA
+	else if (cmd_script && argc == 3)
+		stlink2_cmd_script(argv[2]);
+#endif
 
 	return 0;
 }

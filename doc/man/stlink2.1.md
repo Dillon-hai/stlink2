@@ -1,6 +1,6 @@
-% STLINK2(1) stlink2 User Manuals
+% STLINK2(1) stlink2 User Manual
 % Jerry Jacobs
-% December 6, 2016
+% March 4, 2017
 
 # NAME
 
@@ -16,14 +16,17 @@ stlink2 is...
 
 # COMMAND
 
-probe
-: probe all programmers
+help
+: get help about a command
 
 version
 : print stlink2 version
 
-help
-: get help about a command
+probe
+: probe all programmers
+
+script
+: run lua script
 
 # SEE ALSO
 

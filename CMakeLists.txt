@@ -5,6 +5,8 @@
 #
 cmake_minimum_required(VERSION 2.8)
 project(stlink2 C)
+
+include(ExternalProject)
 include(CheckFunctionExists)
 
 if (POLICY CMP0042)
@@ -19,13 +21,21 @@ include(cmake/Version.txt)
 include(cmake/Doxygen.txt)
 include(cmake/CheckCCompilerFlag.txt)
 
-include (TestBigEndian)
-TEST_BIG_ENDIAN(IS_BIG_ENDIAN)
-if(IS_BIG_ENDIAN)
-	message(STATUS "BIG_ENDIAN")
-else()
-	message(STATUS "LITTLE_ENDIAN")
-endif()
+ExternalProject_Add(
+	lua
+	SOURCE_DIR "${PROJECT_SOURCE_DIR}/3thparty/lua.org/lua-5.3.3"
+	INSTALL_COMMAND ""
+)
+
+externalproject_get_property(lua install_dir)
+set(LUA_INCLUDE "${PROJECT_SOURCE_DIR}/3thparty/lua.org/lua-5.3.3/src")
+set(LUA_LIBRARY_STATIC ${install_dir}/src/lua-build/liblua.a)
+include_directories(${LUA_INCLUDE})
+
+# fixup __FILE__ absolute paths in logging module
+# see: https://cmake.org/pipermail/cmake-developers/2015-January/024202.html
+string(LENGTH "${CMAKE_SOURCE_DIR}/" CMAKE_SOURCE_DIR_LENGTH)
+add_definitions(-DCMAKE_SOURCE_DIR_LENGTH=${CMAKE_SOURCE_DIR_LENGTH})
 
 if (WIN32)
 	add_definitions("-DSTLINK2_HAVE_WINDOWS")
@@ -37,6 +47,7 @@ else ()
 	check_function_exists(nanosleep STLINK2_HAVE_NANOSLEEP)
 	add_definitions (-D_GNU_SOURCE)
 	add_cflag_if_supported("-Wall")
+	add_cflag_if_supported("-fPIC")
 
 	if(${CMAKE_BUILD_TYPE} MATCHES "Debug")
 		add_cflag_if_supported("-O0")
@@ -58,18 +69,6 @@ endif()
 
 if(MSVC)
 	add_cflag_if_supported("/MD")
-#    foreach(flag_var CMAKE_C_FLAGS_DEBUG CMAKE_CXX_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE CMAKE_CXX_FLAGS_RELEASE CMAKE_C_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO CMAKE_CXX_FLAGS_RELWITHDEBINFO) 
-#        string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
-#        string(REGEX REPLACE "/MDd" "/MTd" ${flag_var} "${${flag_var}}")
-#    endforeach(flag_var)
-#    SET (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}" CACHE STRING "MSVC C Debug MT flags " FORCE)    
-#    SET (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}" CACHE STRING "MSVC CXX Debug MT flags " FORCE)
-#    SET (CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}" CACHE STRING "MSVC C Release MT flags " FORCE)
-#    SET (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}" CACHE STRING "MSVC CXX Release MT flags " FORCE)
-#    SET (CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL}" CACHE STRING "MSVC C Debug MT flags " FORCE)    
-#    SET (CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL}" CACHE STRING "MSVC C Release MT flags " FORCE)
-#    SET (CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO}" CACHE STRING "MSVC CXX Debug MT flags " FORCE)    
-#    SET (CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}" CACHE STRING "MSVC CXX Release MT flags " FORCE)
 endif()
 
 add_subdirectory(include)
@@ -81,7 +80,7 @@ add_subdirectory(src)
 ###
 if (BUILD_TESTING)
 	include(cmake/Lint.txt)
-	add_lint_target("${STLINK2_HEADERS};${STLINK2_HEADERS_INTERNAL};${STLINK2_LIBRARY_SOURCE}")
+	add_lint_target("${STLINK2_HEADERS};${STLINK2_HEADERS_INTERNAL};${STLINK2_LIBRARY_SOURCE};${STLINK2_LUA_LIBRARY_SOURCE}")
 endif()
 
 add_subdirectory("tests")

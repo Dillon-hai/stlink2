@@ -1,15 +1,18 @@
 MAKEFLAGS+=-s
 
 all: debug
-ci: lint debug release doc test
-
 help:
-	@echo "      release: Run a release build"
 	@echo "        debug: Run a debug build"
+	@echo "      release: Run a release build"
 	@echo "         lint: Lint check all source-code"
 	@echo "         test: Build and run tests"
+	@echo "      package: Create binary distribution package (from release)"
 	@echo "        clean: Clean all build output"
+	@echo "           ci: Run continuous integration targets"
 	@echo "rebuild_cache: Rebuild all CMake caches"
+	@echo "         help: Print this help message"
+
+ci: lint debug release doc test package
 
 rebuild_cache: build/Debug build/Release
 	@$(MAKE) -C build/Debug rebuild_cache

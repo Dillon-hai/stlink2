@@ -42,11 +42,12 @@ static void test_open_close(stlink2_context_t ctx, const char *serial)
 	uint32_t cpuid;
 	uint16_t devid;
 
-	stlink2_log_set_level(dev, STLINK2_LOGLEVEL_INFO);
+	//stlink2_log_set_file(dev, stdout);
+	stlink2_log_set_level(dev, STLINK2_LOGLEVEL_TRACE);
 
-	printf("  serial: %s\n",    stlink2_get_serial(dev));
-	printf("    name: %s\n",    stlink2_get_name(dev));
-	printf(" version: %s\n",    stlink2_get_version(dev));
+	printf("  serial: %s\n", stlink2_get_serial(dev));
+	printf("    name: %s\n", stlink2_get_name(dev));
+	printf(" version: %s\n", stlink2_get_version(dev));
 
 	stlink2_get_mode(dev);
 	stlink2_set_mode_swd(dev);
@@ -80,7 +81,6 @@ static void test_open_close(stlink2_context_t ctx, const char *serial)
 	printf("  chipid: %08x\n",  stlink2_get_chipid(dev));
 	printf("   devid: %s (0x%03x)\n", stlink2_stm32_devid_str(devid), devid);
 	printf("  flash size: %dKiB\n", stlink2_get_flash_size(dev));
-	printf("  unique id: %s\n", stlink2_get_unique_id(dev, 0x1ff800d0)); /** @todo STM32L152 now... */
 
 #ifdef BLA
 	uint8_t *flash = malloc(1024);

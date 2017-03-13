@@ -39,10 +39,26 @@ void stlink2_log_set_default_level(stlink2_t ctx, enum stlink2_loglevel level);
 void stlink2_log_set_file(stlink2_t dev, FILE *file);
 
 /**
+ * Set logfile from filename
+ * * Special: stdout, stderr
+ */
+void stlink2_log_set_filename(stlink2_t dev, const char *filename);
+
+/**
  * Set effective loglevel
  * @param dev  Device
  * @param file File
  */
 void stlink2_log_set_level(stlink2_t dev, enum stlink2_loglevel level);
+
+/**
+ * Set effective loglevel from string:
+ * * error
+ * * warn
+ * * info
+ * * debug
+ * * trace
+ */
+void stlink2_log_set_level_str(stlink2_t dev, const char *level);
 
 #endif /* STLINK2_LOG_H_ */

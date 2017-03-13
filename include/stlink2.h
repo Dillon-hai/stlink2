@@ -54,6 +54,7 @@ void stlink2_exit(stlink2_context_t *ctx);
 
 void stlink2_probe(stlink2_context_t ctx, stlink2_devs_t *devlist);
 stlink2_t stlink2_open(stlink2_context_t ctx, const char *serial);
+void stlink2_reset(stlink2_t *dev);
 void stlink2_close(stlink2_t *dev);
 
 const char *stlink2_get_name(stlink2_t dev);
@@ -71,7 +72,6 @@ uint32_t stlink2_get_chipid(stlink2_t dev);
 uint32_t stlink2_get_cpuid(stlink2_t dev);
 uint16_t stlink2_get_devid(stlink2_t dev);
 uint32_t stlink2_get_flash_size(stlink2_t dev);
-const char *stlink2_get_unique_id(stlink2_t dev, uint32_t addr);
 
 void stlink2_read_mem(stlink2_t dev, uint32_t addr, void *data, size_t len);
 

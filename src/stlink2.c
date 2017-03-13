@@ -43,7 +43,23 @@ enum stlink2_mode stlink2_get_mode(struct stlink2 *dev)
 	return rep[0];
 }
 
-static void stlink2_command(struct stlink2 *dev, const uint8_t cmd, const uint8_t param,
+const char *stlink2_get_mode_str(struct stlink2 *dev)
+{
+	switch (stlink2_get_mode(dev)) {
+	case STLINK2_MODE_DFU:
+		return "dfu";
+	case STLINK2_MODE_MASS:
+		return "mass";
+	case STLINK2_MODE_DEBUG:
+		return "debug";
+	default:
+		break;
+	}
+
+	return "unknown";
+}
+
+static bool stlink2_command(struct stlink2 *dev, const uint8_t cmd, const uint8_t param,
 			    uint8_t *buf, const size_t bufsize)
 {
 	uint8_t _cmd[STLINK2_USB_CMD_SIZE];
@@ -52,7 +68,7 @@ static void stlink2_command(struct stlink2 *dev, const uint8_t cmd, const uint8_
 	_cmd[0] = cmd;
 	_cmd[1] = param;
 
-	stlink2_usb_send_recv(dev, _cmd, STLINK2_USB_CMD_SIZE, buf, bufsize);
+	return stlink2_usb_send_recv(dev, _cmd, STLINK2_USB_CMD_SIZE, buf, bufsize);
 }
 
 static void stlink2_debug_command(struct stlink2 *dev, const uint8_t cmd, const uint8_t param,
@@ -161,6 +177,19 @@ enum stlink2_status stlink2_get_status(struct stlink2 *dev)
 	}
 
 	return rep[0];
+}
+
+const char *stlink2_get_status_str(struct stlink2 *dev)
+{
+	switch (stlink2_get_status(dev)) {
+	case STLINK2_STATUS_CORE_RUNNING:
+		return "running";
+	case STLINK2_STATUS_CORE_HALTED:
+		return "halted";
+	default:
+		break;
+	}
+	return "unknown";
 }
 
 static void stlink2_set_exitmode_dfu(struct stlink2 *dev)
@@ -294,17 +323,14 @@ static void stlink2_dev_free(struct stlink2 **dev)
 
 	struct stlink2 *_dev = *dev;
 
-	free(_dev->serial);
-	_dev->serial = NULL;
-
-	free(_dev->fw.version);
-	_dev->fw.version = NULL;
-
 	if (_dev->usb.dev) {
+		stlink2_usb_cleanup(_dev);
 		libusb_close(_dev->usb.dev);
 		_dev->usb.dev = NULL;
 	}
 
+	free(_dev->serial);
+	free(_dev->fw.version);
 	free(_dev);
 	*dev = NULL;
 }
@@ -384,10 +410,31 @@ stlink2_t stlink2_open(stlink2_context_t ctx, const char *serial)
 
 	libusb_free_device_list(devs, 1);
 
+	dev->ctx = ctx;
+
 	if (!found)
 		stlink2_dev_free(&dev);
 
 	return dev;
+}
+
+void stlink2_reset(stlink2_t *dev)
+{
+	if (!dev)
+		return;
+
+	/* Duplicate context and serial before we reset */
+	stlink2_context_t ctx = (*dev)->ctx;
+	char *serial = stlink2_strdup((*dev)->serial);
+
+	if (!serial)
+		return;
+
+	stlink2_usb_reset(*dev);
+	stlink2_close(dev);
+
+	*dev = stlink2_open(ctx, serial);
+	free(serial);
 }
 
 void stlink2_close(stlink2_t *dev)
@@ -462,8 +509,15 @@ uint32_t stlink2_get_chipid(stlink2_t dev)
 	if (dev->mcu.chipid)
 		return dev->mcu.chipid;
 
-	/** @todo move reg into macro */
-	stlink2_read_debug32(dev, STLINK2_CORTEXM_IDCODE_REG, &dev->mcu.chipid);
+	stlink2_get_cpuid(dev);
+	enum stlink2_cortexm_cpuid_partno partno = stlink2_cortexm_cpuid_get_partno(dev->mcu.cpuid);
+
+	if (partno == STLINK2_CORTEXM_CPUID_PARTNO_M0 ||
+	    partno == STLINK2_CORTEXM_CPUID_PARTNO_M0_PLUS)
+		stlink2_read_debug32(dev, STLINK2_CORTEXM_IDCODE_M0_REG, &dev->mcu.chipid);
+	else
+		stlink2_read_debug32(dev, STLINK2_CORTEXM_IDCODE_REG, &dev->mcu.chipid);
+
 	return dev->mcu.chipid;
 }
 
@@ -490,7 +544,7 @@ uint32_t stlink2_get_flash_size(stlink2_t dev)
 
 	reg = stlink2_stm32_flash_size_reg(stlink2_get_devid(dev));
 	if (!reg) {
-		STLINK2_LOG(ERROR, dev, "flash_size register for devid 0x%03x is unknown", stlink2_get_devid(dev));
+		STLINK2_LOG(ERROR, dev, "flash_size register for devid 0x%03x is unknown\n", stlink2_get_devid(dev));
 		return 0;
 	}
 
@@ -498,29 +552,6 @@ uint32_t stlink2_get_flash_size(stlink2_t dev)
 	STLINK2_LOG(DEBUG, dev, "flash size (reg: 0x%04x) : 0x%04x\n", reg, dev->mcu.flash_size);
 
 	return dev->mcu.flash_size;
-}
-
-const char *stlink2_get_unique_id(stlink2_t dev, uint32_t addr)
-{
-	if (dev->mcu.unique_id)
-		return dev->mcu.unique_id;
-
-	dev->mcu.unique_id = malloc(32);
-	if (!dev->mcu.unique_id)
-		return NULL;
-
-	uint32_t unique_id[3]; /* 96-bit */
-
-	for (size_t n = 0; n < 3; n++) {
-		stlink2_read_debug32(dev, addr, &unique_id[n]);
-		STLINK2_LOG(DEBUG, dev, "[%08x] %08x\n", addr, unique_id[n]);
-		unique_id[n] = htobe32(unique_id[n]);
-		addr += 4;
-	}
-
-	stlink2_hexstr_from_bin(dev->mcu.unique_id, 24, (void *)unique_id, 12);
-	dev->mcu.unique_id[24] = 0;
-	return dev->mcu.unique_id;
 }
 
 float stlink2_get_target_voltage(stlink2_t dev)

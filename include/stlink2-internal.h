@@ -15,6 +15,7 @@ struct stlink2_context {
 };
 
 struct stlink2 {
+	struct stlink2_context *ctx;
 	char *serial;
 	const char *name;
 	struct {
@@ -35,6 +36,7 @@ struct stlink2 {
 		char *version;
 	} fw;
 	struct {
+		size_t xfer_count;
 		uint16_t pid;
 		libusb_device_handle *dev;
 		uint8_t rx_ep;

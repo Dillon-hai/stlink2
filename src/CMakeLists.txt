@@ -78,4 +78,5 @@ install (TARGETS
 	DESTINATION lib
 )
 
+add_subdirectory(lua)
 add_subdirectory(cmd/stlink2)
