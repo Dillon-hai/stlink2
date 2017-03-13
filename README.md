@@ -51,5 +51,4 @@ The codebase uses the [linux kernel codestyle](doc/developer/codestyle.txt) with
 
 # License
 
-The project is [MIT](LICENSE) licensed. The code under the `3thparty` folder have their own licenses
- and are only used during development.
+The project is [MIT](LICENSE) licensed. The code under the `3thparty` folder have their own licenses.
