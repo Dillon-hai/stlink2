@@ -30,7 +30,7 @@ static int l_probe(lua_State *L)
 	lua_createtable(L, 0, (int)devs.len);
 
 	for (size_t n = 0; n < devs.len; n++) {
-		lua_pushinteger(L, n);
+		lua_pushinteger(L, (long long)n);
 		lua_pushstring(L, devs.serial[n]);
 		lua_settable(L, -3);
 	}

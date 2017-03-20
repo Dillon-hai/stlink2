@@ -146,7 +146,7 @@ const char *stlink2_get_version(stlink2_t dev)
 	stlink2_command(dev, STLINK2_CMD_GET_VERSION, 0x80, rep, sizeof(rep));
 
 	dev->fw.stlink = (rep[0] & 0xf0) >> 4;
-	dev->fw.jtag   = ((rep[0] & 0x0f) << 2) | ((rep[1] & 0xc0) >> 6);
+	dev->fw.jtag   = (uint8_t)(((rep[0] & 0x0f) << 2) | ((rep[1] & 0xc0) >> 6));
 	dev->fw.swim   = rep[1] & 0x3f;
 
 	/** @todo there should be a better way to malloc */

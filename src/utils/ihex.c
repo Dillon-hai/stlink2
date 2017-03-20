@@ -9,6 +9,7 @@
  */
 
 #include <stlink2/utils/ihex.h>
+#include <stlink2/utils/hexstr.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -82,10 +83,8 @@ void stlink2_ihex_readline(struct stlink2_ihex_rec *rec, const char *line)
 	if (!rec->data)
 		return;
 
-	for (size_t n = 0; n < rec->size; n++)
-		rec->data[n] = stlink2_ihex_hex2bin(line + STLINK2_IHEX_OFFSET_DATA + n, 1);
-
-	rec->checksum = stlink2_ihex_hex2bin(line + STLINK2_IHEX_OFFSET_DATA + (rec->size * 2), 1);
+	stlink2_hexstr_to_bin(rec->data, rec->size, line + STLINK2_IHEX_OFFSET_DATA, rec->size * 2);
+	stlink2_hexstr_to_bin(&rec->checksum, sizeof(rec->checksum), line + STLINK2_IHEX_OFFSET_DATA + (rec->size * 2), 1);
 	if (rec->checksum != stlink2_ihex_rec_checksum(rec)) {
 		free(rec->data);
 		rec->data = NULL;

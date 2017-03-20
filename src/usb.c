@@ -102,7 +102,7 @@ static char *stlink2_usb_read_serial(struct stlink2 *st, libusb_device_handle *h
 	}
 
 	if (!ishexserial)
-		return stlink2_usb_read_serial_from_bin(serial, ret);
+		return stlink2_usb_read_serial_from_bin(serial, (size_t)ret);
 
 	return stlink2_strdup(serial);
 }

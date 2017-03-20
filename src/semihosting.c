@@ -25,20 +25,16 @@ void stlink2_semihosting_op_sys_close(struct stlink2 *dev)
 
 void stlink2_semihosting_op_sys_writec(struct stlink2 *dev)
 {
-	ssize_t rc;
 	uint32_t data;
 
 	stlink2_read_reg(dev, 1, &data);
 	stlink2_read_debug32(dev, data, &data);
-	rc = fwrite(&data, 1, 1, stdout);
-
-	if (rc < 0)
-		printf("error in write\n");
+	/* @todo: don't care for now */
+	(void)fwrite(&data, 1, 1, stdout);
 }
 
 void stlink2_semihosting_op_sys_write0(struct stlink2 *dev)
 {
-	ssize_t rc;
 	uint32_t data;
 	uint32_t addr;
 
@@ -53,8 +49,8 @@ void stlink2_semihosting_op_sys_write0(struct stlink2 *dev)
 				break;
 			}
 
-			rc = fwrite(&((char *)&data)[n], 1, 1, stdout);
-			if (rc < 0) {
+			const size_t nbyte= fwrite(&((char *)&data)[n], 1, 1, stdout);
+			if (nbyte == 0) {
 				data = 0;
 				break;
 			}

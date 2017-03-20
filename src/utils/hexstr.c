@@ -32,11 +32,11 @@ static const char stlink2_hexstr_byte_map[16] = {
 static uint8_t stlink2_hexstr_char_to_bin(const char c)
 {
 	if (c >= '0' && c <= '9')
-		return (c - '0');
+		return (uint8_t)(c - '0');
 	if (c >= 'a' && c <= 'f')
-		return (c - 'a' + 10);
+		return (uint8_t)(c - 'a' + 10);
 	if (c >= 'A' && c <= 'F')
-		return (c - 'A' + 10);
+		return (uint8_t)(c - 'A' + 10);
 
 	return 0;
 }
@@ -60,7 +60,7 @@ void stlink2_hexstr_to_bin(
 			}
 
 			if (nibble == 0)
-				*_dst = stlink2_hexstr_char_to_bin(((char *)src)[n]) << 4;
+				*_dst = (uint8_t)(stlink2_hexstr_char_to_bin(((char *)src)[n]) << 4);
 			else
 				*_dst |= stlink2_hexstr_char_to_bin(((char *)src)[n]);
 

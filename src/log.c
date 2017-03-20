@@ -31,7 +31,7 @@ static const char *stlink2_loglevel_str(enum stlink2_loglevel level)
 	return "";
 }
 
-void stlink2_log(enum stlink2_loglevel level, const char *file, unsigned int line, const char *function, stlink2_t dev,
+void stlink2_log(enum stlink2_loglevel level, const char *file, const unsigned int line, const char *function, const stlink2_t dev,
 		 const char *format, ...)
 {
 	if (!dev->log.fp || dev->log.level < level)

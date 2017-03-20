@@ -28,16 +28,14 @@ void stlink2_cmd_probe(void)
 			if (!dev)
 				return;
 
-			stlink2_reset(&dev);
-
 			printf("\n  serial: %s\n", stlink2_get_serial(dev));
-			printf("    name: %s\n", stlink2_get_name(dev));
-			printf(" version: %s\n", stlink2_get_version(dev));
+			printf("      name: %s\n", stlink2_get_name(dev));
+			printf("   version: %s\n", stlink2_get_version(dev));
 
 			stlink2_close(&dev);
 		}
 	} else {
-		printf("No stlink2 programmer found");
+		printf("No stlink2 programmers found\n");
 	}
 
 	stlink2_exit(&ctx);

@@ -23,7 +23,7 @@
 #define STLINK2_LOG_WRITE(level, dev, format, ...) \
 	stlink2_log(STLINK2_LOGLEVEL_##level, NULL, 0, NULL, dev, format, ##__VA_ARGS__)
 
-void stlink2_log(enum stlink2_loglevel, const char *file, unsigned int line,
-		 const char *function, stlink2_t dev, const char *format, ...);
+void stlink2_log(enum stlink2_loglevel, const char *file, const unsigned int line,
+		 const char *function, const stlink2_t dev, const char *format, ...);
 
 #endif /* STLINK2_INTERNAL_LOG_H_ */
