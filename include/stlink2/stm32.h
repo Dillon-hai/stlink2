@@ -46,9 +46,11 @@
 	STLINK2_STM32_DEV(F74XF75X,  "STM32F74x/F75x",                            0x449, 0x1ff0f442) \
 	STLINK2_STM32_DEV(H7XX,      "STM32H7xx",                                 0x450, 0x00000000) \
 	STLINK2_STM32_DEV(F76X,      "STM32F76x",                                 0x451, 0x1ff0f442) \
-	STLINK2_STM32_DEV(F72XF73X,  "STM32F72x/F73x",                            0x452, 0x00000000) \
+	STLINK2_STM32_DEV(F72XF73X,  "STM32F72x/F73x",                            0x452, 0x1ff07a22) \
 	STLINK2_STM32_DEV(L01XL02X,  "STM32L01x/L02x",                            0x457, 0x1ff8007c) \
-	STLINK2_STM32_DEV(F410XX,    "STM32F410xx",                               0x458, 0x1fff7a22)
+	STLINK2_STM32_DEV(F410XX,    "STM32F410xx",                               0x458, 0x1fff7a22) \
+	STLINK2_STM32_DEV(L4X6,      "STM32L4x6",                                 0x461, 0x1fff75e0) \
+	STLINK2_STM32_DEV(F4X3,      "STM32F4x3",                                 0x463, 0x1fff7a22)
 #undef  STLINK2_STM32_DEV
 
 /** STM32 family device ids */
