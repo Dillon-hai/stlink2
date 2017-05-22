@@ -30,14 +30,14 @@ static uint8_t stlink2_ihex_rec_checksum(const struct stlink2_ihex_rec *rec)
 {
 	uint8_t checksum = 0;
 
-	checksum += rec->size;
-	checksum += rec->addr;
-	checksum += rec->rtype;
+	checksum = (uint8_t)(rec->size + checksum);
+	checksum = (uint8_t)(rec->addr + checksum);
+	checksum = (uint8_t)(rec->rtype + checksum);
 
 	for (size_t n = 0; n < rec->size; n++)
-		checksum += rec->data[n];
+		checksum = (uint8_t)(rec->data[n] + checksum);
 
-	return 1 + (~checksum);
+	return (uint8_t)(1 + (~checksum));
 }
 
 /**
@@ -56,11 +56,11 @@ static uint32_t stlink2_ihex_hex2bin(const char *hex, const size_t size)
 			break;
 
 		if (c >= '0' && c <= '9')
-			c = c - '0';
+			c = (char)(c - '0');
 		else if (c >= 'a' && c <= 'f')
-			c = c - 'a' + 10;
+			c = (char)(c - 'a' + 10);
 		else if (c >= 'A' && c <= 'F')
-			c = c - 'A' + 10;
+			c = (char)(c - 'A' + 10);
 
 		val = (val << 4) | (c & 0xf);
 	}
