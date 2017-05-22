@@ -34,7 +34,7 @@ set(LUA_INCLUDE "${PROJECT_SOURCE_DIR}/3thparty/lua.org/lua-5.3.3/src")
 if (NOT WIN32)
 	set(LUA_LIBRARY_STATIC ${install_dir}/src/lua-build/liblua.a)
 else()
-	set(LUA_LIBRARY_STATIC ${install_dir}/src/lua-build/liblua.lib)
+	set(LUA_LIBRARY_STATIC ${install_dir}/src/lua-build/lua.lib)
 endif()
 include_directories(${LUA_INCLUDE})
 
