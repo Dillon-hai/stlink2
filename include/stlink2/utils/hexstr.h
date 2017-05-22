@@ -17,7 +17,7 @@
  * @param src_len Size of src (excluding null character)
  */
 void stlink2_hexstr_to_bin(
-	void *dst, size_t dst_len,
+	void *dst, const size_t dst_len,
 	const void *src, size_t src_len);
 
 /**
@@ -28,7 +28,7 @@ void stlink2_hexstr_to_bin(
  * @param src_len Binary input buffer length
  */
 void stlink2_hexstr_from_bin(
-	void *dst, size_t dst_len,
-	const void *src, size_t src_len);
+	void *dst, const size_t dst_len,
+	const void *src, const size_t src_len);
 
 #endif /* STLINK2_UTILS_HEXSTR_H_ */
