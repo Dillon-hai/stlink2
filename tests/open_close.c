@@ -9,7 +9,7 @@ void dump_hex(const void * data, size_t size)
 	for (i = 0; i < size; ++i) {
 		printf("%02X ", ((unsigned char*)data)[i]);
 		if (((unsigned char*)data)[i] >= ' ' && ((unsigned char*)data)[i] <= '~') {
-			ascii[i % 16] = ((unsigned char*)data)[i];
+			ascii[i % 16] = ((char*)data)[i];
 		} else {
 			ascii[i % 16] = '.';
 		}

@@ -13,6 +13,7 @@ set (STLINK2_LIBRARY_SOURCE
 	"utils/msleep.c"
 	"utils/ihex.c"
 	"utils/flag.c"
+	CACHE INTERNAL "stlink2 library source"
 )
 
 ###

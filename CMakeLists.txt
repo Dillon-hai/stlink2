@@ -21,15 +21,21 @@ include(cmake/Version.txt)
 include(cmake/Doxygen.txt)
 include(cmake/CheckCCompilerFlag.txt)
 
+set (LUA_LIBRARY lua)
+
 ExternalProject_Add(
-	lua
+	${LUA_LIBRARY}
 	SOURCE_DIR "${PROJECT_SOURCE_DIR}/3thparty/lua.org/lua-5.3.3"
 	INSTALL_COMMAND ""
 )
 
-externalproject_get_property(lua install_dir)
+externalproject_get_property(${LUA_LIBRARY} install_dir)
 set(LUA_INCLUDE "${PROJECT_SOURCE_DIR}/3thparty/lua.org/lua-5.3.3/src")
-set(LUA_LIBRARY_STATIC ${install_dir}/src/lua-build/liblua.a)
+if (NOT WIN32)
+	set(LUA_LIBRARY_STATIC ${install_dir}/src/lua-build/liblua.a)
+else()
+	set(LUA_LIBRARY_STATIC ${install_dir}/src/lua-build/liblua.lib)
+endif()
 include_directories(${LUA_INCLUDE})
 
 # fixup __FILE__ absolute paths in logging module
@@ -80,7 +86,7 @@ add_subdirectory(src)
 ###
 if (BUILD_TESTING)
 	include(cmake/Lint.txt)
-	add_lint_target("${STLINK2_HEADERS};${STLINK2_HEADERS_INTERNAL};${STLINK2_LIBRARY_SOURCE};${STLINK2_LUA_LIBRARY_SOURCE}")
+	add_lint_target("${STLINK2_HEADERS};${STLINK2_HEADERS_INTERNAL}")
 endif()
 
 add_subdirectory("tests")
