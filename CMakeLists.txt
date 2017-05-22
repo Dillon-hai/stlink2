@@ -29,12 +29,12 @@ ExternalProject_Add(
 	INSTALL_COMMAND ""
 )
 
-externalproject_get_property(${LUA_LIBRARY} install_dir)
+externalproject_get_property(${LUA_LIBRARY} BINARY_DIR)
 set(LUA_INCLUDE "${PROJECT_SOURCE_DIR}/3thparty/lua.org/lua-5.3.3/src")
 if (NOT WIN32)
-	set(LUA_LIBRARY_STATIC ${install_dir}/src/lua-build/liblua.a)
+	set(LUA_LIBRARY_STATIC ${BINARY_DIR}/liblua.a)
 else()
-	set(LUA_LIBRARY_STATIC ${install_dir}/src/lua-build/${CMAKE_BUILD_TYPE}/lua.lib)
+	set(LUA_LIBRARY_STATIC ${BINARY_DIR}/lua.lib)
 endif()
 include_directories(${LUA_INCLUDE})
 
