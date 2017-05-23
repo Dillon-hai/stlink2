@@ -447,40 +447,49 @@ void stlink2_close(stlink2_t *dev)
 
 void stlink2_probe(stlink2_context_t ctx, stlink2_devs_t *devlist)
 {
-	ssize_t cnt;
-	struct stlink2 *dev;
+	if (!ctx)
+		return;
+
 	libusb_device **devs;
+
+	ssize_t lusbcnt = libusb_get_device_list(ctx->usb, &devs);
+
+	if (lusbcnt < 0)
+		return;
 
 	/** @todo hardcoded for now */
 	devlist->len    = 0;
 	devlist->cap    = 16;
 	devlist->serial = calloc(1, devlist->cap * sizeof(const char *));
-
-	if (!ctx)
+	if (!devlist->serial)
 		return;
 
-	cnt = libusb_get_device_list(ctx->usb, &devs);
-	if (cnt < 0)
+	/* Allocate first stlink2 dev */
+	struct stlink2 *dev = stlink2_dev_alloc(ctx);
+	if (!dev)
 		return;
 
-	dev = stlink2_dev_alloc(ctx);
+	const size_t count = (size_t)lusbcnt;
 
 	/* Loop trough all libusb devices and probe stlink2 */
-	for (ssize_t n = 0; n < cnt; n++) {
+	for (size_t n = 0; n < count; n++) {
 		if (!stlink2_usb_probe_dev(devs[n], dev, false))
 			continue;
 
 		STLINK2_LOG_INFO(dev, "programmer found: %s\n", dev->serial);
-		devlist->serial[devlist->len] = stlink2_strdup(dev->serial); /** @todo check, free */
+		devlist->serial[devlist->len] = stlink2_strdup(dev->serial);
 		devlist->len++;
 
 		stlink2_dev_free(&dev);
 		dev = stlink2_dev_alloc(ctx);
+		if (!dev)
+			break;
 
 		if (devlist->len == devlist->cap)
 			break;
 	}
 
+	/* Free stlink2 dev */
 	stlink2_dev_free(&dev);
 }
 

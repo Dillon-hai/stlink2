@@ -20,23 +20,25 @@ void stlink2_cmd_probe(void)
 	stlink2_ctx_load_env_vars(ctx);
 	stlink2_probe(ctx, &devs);
 
-	if (devs.len) {
-		printf("Found %zu stlink2 programmer%c\n", devs.len, (devs.len == 1) ? '\0' : 's');
-
-		for (size_t n = 0; n < devs.len; n++) {
-			stlink2_t dev = stlink2_open(ctx, devs.serial[n]);
-
-			if (!dev)
-				return;
-
-			printf("\n  serial: %s\n", stlink2_get_serial(dev));
-			printf("      name: %s\n", stlink2_get_name(dev));
-			printf("   version: %s\n", stlink2_get_version(dev));
-
-			stlink2_close(&dev);
-		}
-	} else {
+	if (!devs.len) {
 		printf("No stlink2 programmers found\n");
+		stlink2_exit(&ctx);
+		return;
+	}
+
+	printf("Found %zu stlink2 programmer%c\n", devs.len, (devs.len == 1) ? '\0' : 's');
+
+	for (size_t n = 0; n < devs.len; n++) {
+		stlink2_t dev = stlink2_open(ctx, devs.serial[n]);
+
+		if (!dev)
+			return;
+
+		printf("--- serial: %s\n", stlink2_get_serial(dev));
+		printf("      name: %s\n", stlink2_get_name(dev));
+		printf("   version: %s\n", stlink2_get_version(dev));
+
+		stlink2_close(&dev);
 	}
 
 	stlink2_exit(&ctx);

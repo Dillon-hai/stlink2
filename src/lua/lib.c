@@ -70,7 +70,7 @@ static int l_dev_run(lua_State *L)
 	if (!dev)
 		return 0;
 
-	stlink2_mcu_halt(dev);	
+	stlink2_mcu_run(dev);	
 
 	return 0;
 }
@@ -126,6 +126,8 @@ static int l_dev_gc(lua_State *L)
 {
 	stlink2_t dev = l_dev_to_stlink2_t(L);
 
+	printf("__gc: %p\n", dev);
+
 	if (!dev)
 		return 0;
 	
@@ -148,7 +150,7 @@ static const luaL_Reg l_dev_m[] = {
 	{"run",       l_dev_run},
 	{"flashSize", l_dev_flash_size},
 	{"readReg",   l_dev_read_reg},
-	{"__gc", l_dev_gc},
+	{"__gc",      l_dev_gc},
 	{NULL, NULL}
 };
 
