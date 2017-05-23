@@ -12,6 +12,10 @@
 
 struct stlink2_context {
 	libusb_context *usb;
+	struct {
+		enum stlink2_loglevel level;
+		FILE *fp;
+	} log;
 };
 
 struct stlink2 {
@@ -33,10 +37,12 @@ struct stlink2 {
 		uint8_t stlink;
 		uint8_t jtag;
 		uint8_t swim;
-		char *version;
+		char version[16];
 	} fw;
 	struct {
+#ifdef STLINK2_HAVE_MACOSX
 		size_t xfer_count;
+#endif
 		uint16_t pid;
 		libusb_device_handle *dev;
 		uint8_t rx_ep;

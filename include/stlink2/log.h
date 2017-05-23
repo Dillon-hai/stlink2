@@ -29,7 +29,24 @@ enum stlink2_loglevel {
 /**
  * Set default loglevel
  */
-void stlink2_log_set_default_level(stlink2_t ctx, enum stlink2_loglevel level);
+void stlink2_log_set_default_level(stlink2_context_t ctx, const enum stlink2_loglevel level);
+
+/**
+ * Set default log file
+ */
+void stlink2_log_set_default_file(stlink2_context_t ctx, FILE *fp);
+
+/**
+ * Set default log file
+ * @param dev  Device
+ * @param file File
+ */
+void stlink2_log_set_default_filename(stlink2_context_t dev, const char *filename);
+
+/**
+ *
+ */
+void stlink2_log_set_default_level_str(stlink2_context_t dev, const char *level);
 
 /**
  * Set logfile for device
@@ -40,7 +57,7 @@ void stlink2_log_set_file(stlink2_t dev, FILE *file);
 
 /**
  * Set logfile from filename
- * * Special: stdout, stderr
+ * * Special: "stdout", "stderr"
  */
 void stlink2_log_set_filename(stlink2_t dev, const char *filename);
 

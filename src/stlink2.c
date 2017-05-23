@@ -28,13 +28,13 @@ enum stlink2_mode stlink2_get_mode(struct stlink2 *dev)
 
 	switch (rep[0]) {
 	case STLINK2_MODE_DFU:
-		STLINK2_LOG(DEBUG, dev, "stlink2_get_mode: STLINK2_MODE_DFU\n");
+		STLINK2_LOG_DEBUG(dev, "stlink2_get_mode: STLINK2_MODE_DFU\n");
 		break;
 	case STLINK2_MODE_MASS:
-		STLINK2_LOG(DEBUG, dev, "stlink2_get_mode: STLINK2_MODE_MASS\n");
+		STLINK2_LOG_DEBUG(dev, "stlink2_get_mode: STLINK2_MODE_MASS\n");
 		break;
 	case STLINK2_MODE_DEBUG:
-		STLINK2_LOG(DEBUG, dev, "stlink2_get_mode: STLINK2_MODE_DEBUG\n");
+		STLINK2_LOG_DEBUG(dev, "stlink2_get_mode: STLINK2_MODE_DEBUG\n");
 		break;
 	default:
 		return STLINK2_MODE_UNKNOWN;
@@ -149,11 +149,7 @@ const char *stlink2_get_version(stlink2_t dev)
 	dev->fw.jtag   = (uint8_t)(((rep[0] & 0x0f) << 2) | ((rep[1] & 0xc0) >> 6));
 	dev->fw.swim   = rep[1] & 0x3f;
 
-	/** @todo there should be a better way to malloc */
-	if (!dev->fw.version)
-		dev->fw.version = malloc(32);
-	if (dev->fw.version)
-		snprintf(dev->fw.version, 32, "V%uJ%uS%u", dev->fw.stlink, dev->fw.jtag, dev->fw.swim);
+	snprintf(dev->fw.version, sizeof(dev->fw.version), "V%uJ%uS%u", dev->fw.stlink, dev->fw.jtag, dev->fw.swim);
 
 	return dev->fw.version;
 }
@@ -166,13 +162,13 @@ enum stlink2_status stlink2_get_status(struct stlink2 *dev)
 
 	switch (rep[0]) {
 	case STLINK2_STATUS_CORE_RUNNING:
-		STLINK2_LOG(INFO, dev, "     status: core running\n");
+		STLINK2_LOG_INFO(dev, "     status: core running\n");
 		break;
 	case STLINK2_STATUS_CORE_HALTED:
-		STLINK2_LOG(INFO, dev, "     status: core halted\n");
+		STLINK2_LOG_INFO(dev, "     status: core halted\n");
 		break;
 	default:
-		STLINK2_LOG(INFO, dev, "     status: unknown\n");
+		STLINK2_LOG_INFO(dev, "     status: unknown\n");
 		return STLINK2_STATUS_UNKNOWN;
 	}
 
@@ -309,9 +305,17 @@ void stlink2_halt_resume(stlink2_t dev)
 	stlink2_read_debug32(dev, STLINK2_CORTEXM_DHCSR, &dhcsr);
 }
 
-static struct stlink2 *stlink2_dev_alloc(void)
+static struct stlink2 *stlink2_dev_alloc(stlink2_context_t ctx)
 {
-	return calloc(1, sizeof(struct stlink2));
+	struct stlink2 *dev = calloc(1, sizeof(struct stlink2));
+
+	if (!dev)
+		return NULL;
+
+	stlink2_log_set_level(dev, ctx->log.level);
+	stlink2_log_set_file(dev, ctx->log.fp);
+
+	return dev;
 }
 
 static void stlink2_dev_free(struct stlink2 **dev)
@@ -330,7 +334,6 @@ static void stlink2_dev_free(struct stlink2 **dev)
 	}
 
 	free(_dev->serial);
-	free(_dev->fw.version);
 	free(_dev);
 	*dev = NULL;
 }
@@ -385,7 +388,7 @@ stlink2_t stlink2_open(stlink2_context_t ctx, const char *serial)
 	if (cnt < 0)
 		return NULL;
 
-	dev = stlink2_dev_alloc();
+	dev = stlink2_dev_alloc(ctx);
 
 	/* Loop trough all libusb devices and probe stlink2 */
 	for (ssize_t n = 0; n < cnt; n++) {
@@ -405,7 +408,7 @@ stlink2_t stlink2_open(stlink2_context_t ctx, const char *serial)
 		}
 
 		stlink2_dev_free(&dev);
-		dev = stlink2_dev_alloc();
+		dev = stlink2_dev_alloc(ctx);
 	}
 
 	libusb_free_device_list(devs, 1);
@@ -460,19 +463,19 @@ void stlink2_probe(stlink2_context_t ctx, stlink2_devs_t *devlist)
 	if (cnt < 0)
 		return;
 
-	dev = stlink2_dev_alloc();
+	dev = stlink2_dev_alloc(ctx);
 
 	/* Loop trough all libusb devices and probe stlink2 */
 	for (ssize_t n = 0; n < cnt; n++) {
 		if (!stlink2_usb_probe_dev(devs[n], dev, false))
 			continue;
 
-		STLINK2_LOG(INFO, dev, "programmer found: %s\n", dev->serial);
+		STLINK2_LOG_INFO(dev, "programmer found: %s\n", dev->serial);
 		devlist->serial[devlist->len] = stlink2_strdup(dev->serial); /** @todo check, free */
 		devlist->len++;
 
 		stlink2_dev_free(&dev);
-		dev = stlink2_dev_alloc();
+		dev = stlink2_dev_alloc(ctx);
 
 		if (devlist->len == devlist->cap)
 			break;
@@ -544,12 +547,12 @@ uint32_t stlink2_get_flash_size(stlink2_t dev)
 
 	reg = stlink2_stm32_flash_size_reg(stlink2_get_devid(dev));
 	if (!reg) {
-		STLINK2_LOG(ERROR, dev, "flash_size register for devid 0x%03x is unknown\n", stlink2_get_devid(dev));
+		STLINK2_LOG_ERROR(dev, "flash_size register for devid 0x%03x is unknown\n", stlink2_get_devid(dev));
 		return 0;
 	}
 
 	stlink2_read_debug16(dev, reg, &dev->mcu.flash_size);
-	STLINK2_LOG(DEBUG, dev, "flash size (reg: 0x%04x) : 0x%04x\n", reg, dev->mcu.flash_size);
+	STLINK2_LOG_DEBUG(dev, "flash size (reg: 0x%04x) : 0x%04x\n", reg, dev->mcu.flash_size);
 
 	return dev->mcu.flash_size;
 }

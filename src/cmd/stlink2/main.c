@@ -6,10 +6,10 @@
 #include <lualib.h>
 #endif
 
-void stlink2_dev_set_env(stlink2_t dev)
+void stlink2_ctx_load_env_vars(stlink2_context_t ctx)
 {
-	stlink2_log_set_filename(dev, getenv("STLINK2_LOGFILE"));
-	stlink2_log_set_level_str(dev, getenv("STLINK2_LOGLEVEL"));
+	stlink2_log_set_default_filename(ctx, getenv("STLINK2_LOGFILE"));
+	stlink2_log_set_default_level_str(ctx, getenv("STLINK2_LOGLEVEL"));
 }
 
 void stlink2_cmd_probe(void)
@@ -17,6 +17,7 @@ void stlink2_cmd_probe(void)
 	stlink2_context_t ctx = stlink2_init();
 	stlink2_devs_t devs;
 
+	stlink2_ctx_load_env_vars(ctx);
 	stlink2_probe(ctx, &devs);
 
 	if (devs.len) {
@@ -24,7 +25,7 @@ void stlink2_cmd_probe(void)
 
 		for (size_t n = 0; n < devs.len; n++) {
 			stlink2_t dev = stlink2_open(ctx, devs.serial[n]);
-			stlink2_dev_set_env(dev);
+
 			if (!dev)
 				return;
 

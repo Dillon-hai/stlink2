@@ -18,8 +18,18 @@
 #define STLINK2_LOG_DEFAULT_FILE  NULL
 #define STLINK2_LOG_FILE          (__FILE__ + CMAKE_SOURCE_DIR_LENGTH)
 
-#define STLINK2_LOG(level, dev, format, ...) \
+#define _STLINK2_LOG(level, dev, format, ...) \
 	stlink2_log(STLINK2_LOGLEVEL_##level, STLINK2_LOG_FILE, __LINE__, __func__, dev, format, ##__VA_ARGS__)
+#define STLINK2_LOG_ERROR(dev, format, ...) \
+	_STLINK2_LOG(ERROR, dev, format, ##__VA_ARGS__)
+#define STLINK2_LOG_WARN(dev, format, ...) \
+	_STLINK2_LOG(WARN, dev, format, ##__VA_ARGS__)
+#define STLINK2_LOG_INFO(dev, format, ...) \
+	_STLINK2_LOG(INFO, dev, format, ##__VA_ARGS__)
+#define STLINK2_LOG_DEBUG(dev, format, ...) \
+	_STLINK2_LOG(DEBUG, dev, format, ##__VA_ARGS__)
+#define STLINK2_LOG_TRACE(dev, format, ...) \
+	_STLINK2_LOG(TRACE, dev, format, ##__VA_ARGS__)
 #define STLINK2_LOG_WRITE(level, dev, format, ...) \
 	stlink2_log(STLINK2_LOGLEVEL_##level, NULL, 0, NULL, dev, format, ##__VA_ARGS__)
 

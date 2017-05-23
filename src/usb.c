@@ -30,28 +30,28 @@ static bool stlink2_usb_claim(struct stlink2 *dev)
 	if (ret) {
 		ret = libusb_detach_kernel_driver(dev->usb.dev, 0);
 		if (ret == LIBUSB_ERROR_NOT_SUPPORTED) {
-			STLINK2_LOG(TRACE, dev, "libusb_detach_kernel_driver (%s)\n", libusb_error_name(ret));
+			STLINK2_LOG_TRACE(dev, "libusb_detach_kernel_driver (%s)\n", libusb_error_name(ret));
 		} else if (ret) {
-			STLINK2_LOG(ERROR, dev, "libusb_detach_kernel_driver failed (%s)\n", libusb_error_name(ret));
+			STLINK2_LOG_ERROR(dev, "libusb_detach_kernel_driver failed (%s)\n", libusb_error_name(ret));
 			return false;
 		}
 	}
 
 	ret = libusb_get_configuration(dev->usb.dev, &config);
 	if (ret) {
-		STLINK2_LOG(ERROR, dev, "libusb_get_configuration failed (%s)\n", libusb_error_name(ret));
+		STLINK2_LOG_ERROR(dev, "libusb_get_configuration failed (%s)\n", libusb_error_name(ret));
 		return false;
 	}
 
 	ret = libusb_set_configuration(dev->usb.dev, 1);
 	if (ret) {
-		STLINK2_LOG(ERROR, dev, "libusb_set_configuration failed (%s)\n", libusb_error_name(ret));
+		STLINK2_LOG_ERROR(dev, "libusb_set_configuration failed (%s)\n", libusb_error_name(ret));
 		return false;
 	}
 
 	ret = libusb_claim_interface(dev->usb.dev, 0);
 	if (ret != 0) {
-		STLINK2_LOG(ERROR, dev, "libusb_claim_interface failed (%s)\n", libusb_error_name(ret));
+		STLINK2_LOG_ERROR(dev, "libusb_claim_interface failed (%s)\n", libusb_error_name(ret));
 		return false;
 	}
 
@@ -89,7 +89,7 @@ static char *stlink2_usb_read_serial(struct stlink2 *st, libusb_device_handle *h
 
 	ret = libusb_get_string_descriptor_ascii(handle, desc->iSerialNumber, (unsigned char *)&serial, sizeof(serial));
 	if (ret < 0) {
-		STLINK2_LOG(ERROR, st, "libusb_get_string_descriptor_ascii failed (%s)\n", libusb_error_name(ret));
+		STLINK2_LOG_ERROR(st, "libusb_get_string_descriptor_ascii failed (%s)\n", libusb_error_name(ret));
 		return NULL;
 	}
 
@@ -107,6 +107,16 @@ static char *stlink2_usb_read_serial(struct stlink2 *st, libusb_device_handle *h
 	return stlink2_strdup(serial);
 }
 
+/** Configure USB endpoint numbers */
+static void stlink2_usb_config_endpoints(struct stlink2 *dev)
+{
+	dev->usb.tx_ep = STLINK2_USB_RX_EP;
+	if (dev->usb.pid == STLINK2_USB_PID_V2)
+		dev->usb.rx_ep = STLINK2_USB_V2_TX_EP;
+	else if (dev->usb.pid == STLINK2_USB_PID_V2_1)
+		dev->usb.rx_ep = STLINK2_USB_V2_1_TX_EP;
+}
+
 bool stlink2_usb_probe_dev(libusb_device *dev, struct stlink2 *st, bool attach)
 {
 	int ret = 0;
@@ -115,7 +125,7 @@ bool stlink2_usb_probe_dev(libusb_device *dev, struct stlink2 *st, bool attach)
 
 	ret = libusb_get_device_descriptor(dev, &desc);
 	if (ret) {
-		STLINK2_LOG(ERROR, st, "libusb_get_device_descriptor failed (%s)\n", libusb_error_name(ret));
+		STLINK2_LOG_ERROR(st, "libusb_get_device_descriptor failed (%s)\n", libusb_error_name(ret));
 		return false;
 	}
 
@@ -125,16 +135,13 @@ bool stlink2_usb_probe_dev(libusb_device *dev, struct stlink2 *st, bool attach)
 
 	ret = libusb_open(dev, &devh);
 	if (ret) {
-		STLINK2_LOG(ERROR, st, "libusb_open failed (%s)\n", libusb_error_name(ret));
+		STLINK2_LOG_ERROR(st, "libusb_open failed (%s)\n", libusb_error_name(ret));
 		return false;
 	}
 
-	stlink2_log_set_filename(st,  "stdout");
-	stlink2_log_set_level(st, STLINK2_LOGLEVEL_DEBUG);
-
 	st->serial = stlink2_usb_read_serial(st, devh, &desc);
 	if (!st->serial) {
-		STLINK2_LOG(ERROR, st, "stlink2_usb_read_serial failed\n");
+		STLINK2_LOG_ERROR(st, "stlink2_usb_read_serial failed\n");
 		libusb_close(devh);
 		return false;
 	}
@@ -169,35 +176,30 @@ void stlink2_usb_set_name_from_pid(struct stlink2 *dev)
 		dev->name = stlinkv2_1;
 }
 
-void stlink2_usb_config_endpoints(struct stlink2 *dev)
-{
-	dev->usb.tx_ep = STLINK2_USB_RX_EP;
-	if (dev->usb.pid == STLINK2_USB_PID_V2)
-		dev->usb.rx_ep = STLINK2_USB_V2_TX_EP;
-	else if (dev->usb.pid == STLINK2_USB_PID_V2_1)
-		dev->usb.rx_ep = STLINK2_USB_V2_1_TX_EP;
-}
-
 void stlink2_usb_reset(struct stlink2 *dev)
 {
 	int ret;
 
 	ret = libusb_clear_halt(dev->usb.dev, dev->usb.rx_ep);
-	STLINK2_LOG(DEBUG, dev, "libusb_clear_halt rx_ep: %d\n", ret);
+	STLINK2_LOG_DEBUG(dev, "libusb_clear_halt rx_ep: %d\n", ret);
 
 	ret = libusb_clear_halt(dev->usb.dev, dev->usb.tx_ep);
-	STLINK2_LOG(DEBUG, dev, "libusb_clear_halt tx_ep: %d\n", ret);
+	STLINK2_LOG_DEBUG(dev, "libusb_clear_halt tx_ep: %d\n", ret);
 
 	ret = libusb_reset_device(dev->usb.dev);
-	STLINK2_LOG(DEBUG, dev, "libusb_reset_device: %d\n", ret);
+	STLINK2_LOG_DEBUG(dev, "libusb_reset_device: %d\n", ret);
 }
 
 void stlink2_usb_cleanup(struct stlink2 *dev)
 {
+#ifndef STLINK2_HAVE_MACOSX
+	(void)dev;
+#else
 	/* WORKAROUND for OS/X 10.11+ read from ST-Link, must be performed even times
            or else LIBUSB_ERROR_TIMEOUT can occur at next clean application start */
 	if (dev->usb.xfer_count & 1)
 		stlink2_get_mode(dev);
+#endif
 }
 
 ssize_t stlink2_usb_send_recv(struct stlink2 *dev,
@@ -215,7 +217,7 @@ ssize_t stlink2_usb_send_recv(struct stlink2 *dev,
 					   &res,
 					   dev->usb.timeout);
 		if (ret)
-			STLINK2_LOG(ERROR, dev, "libusb_bulk_transfer tx failed (%s)\n", libusb_error_name(ret));
+			STLINK2_LOG_ERROR(dev, "libusb_bulk_transfer tx failed (%s)\n", libusb_error_name(ret));
 		else
 			break;
 
@@ -223,11 +225,11 @@ ssize_t stlink2_usb_send_recv(struct stlink2 *dev,
 	}
 
 	if (ret) {
-		STLINK2_LOG(ERROR, dev, "libusb_bulk_transfer tx failed (%s)\n", libusb_error_name(ret));
+		STLINK2_LOG_ERROR(dev, "libusb_bulk_transfer tx failed (%s)\n", libusb_error_name(ret));
 		return 0;
 	}
 
-	STLINK2_LOG(TRACE, dev, "USB > ");
+	STLINK2_LOG_TRACE(dev, "USB > ");
 	for (size_t n = 0; n < txsize; n++)
 		STLINK2_LOG_WRITE(TRACE, dev, "%02x ", txbuf[n]);
 	STLINK2_LOG_WRITE(TRACE, dev, "\n");
@@ -245,22 +247,24 @@ ssize_t stlink2_usb_send_recv(struct stlink2 *dev,
 		if (ret == 0)
 			break;
 		else
-			STLINK2_LOG(WARN, dev, "libusb_bulk_transfer rx failed (%s)\n", libusb_error_name(ret));
+			STLINK2_LOG_WARN(dev, "libusb_bulk_transfer rx failed (%s)\n", libusb_error_name(ret));
 
 		tries++;
 	}
 
 	if (ret) {
-		STLINK2_LOG(ERROR, dev, "libusb_bulk_transfer rx failed (%s)\n", libusb_error_name(ret));
+		STLINK2_LOG_ERROR(dev, "libusb_bulk_transfer rx failed (%s)\n", libusb_error_name(ret));
 		return 0;
 	}
 
-	STLINK2_LOG(TRACE, dev, "USB < ");
+	STLINK2_LOG_TRACE(dev, "USB < ");
 	for (size_t n = 0; n < rxsize; n++)
 		STLINK2_LOG_WRITE(TRACE, dev, "%02x ", rxbuf[n]);
 	STLINK2_LOG_WRITE(TRACE, dev, "\n");
 
+#ifdef STLINK2_HAVE_MACOSX
 	dev->usb.xfer_count++;
+#endif
 
 	return 0;
 }
