@@ -411,7 +411,7 @@ stlink2_t stlink2_open(stlink2_context_t ctx, const char *serial)
 		dev = stlink2_dev_alloc(ctx);
 	}
 
-	libusb_free_device_list(devs, 1);
+	libusb_free_device_list(devs, 0);
 
 	dev->ctx = ctx;
 
@@ -461,13 +461,19 @@ void stlink2_probe(stlink2_context_t ctx, stlink2_devs_t *devlist)
 	devlist->len    = 0;
 	devlist->cap    = 16;
 	devlist->serial = calloc(1, devlist->cap * sizeof(const char *));
-	if (!devlist->serial)
+	if (!devlist->serial) {
+		libusb_free_device_list(devs, 0);
 		return;
+	}
 
 	/* Allocate first stlink2 dev */
-	struct stlink2 *dev = stlink2_dev_alloc(ctx);
-	if (!dev)
+	struct stlink2 *dev;
+
+	dev = stlink2_dev_alloc(ctx);
+	if (!dev) {
+		libusb_free_device_list(devs, 0);
 		return;
+	}
 
 	const size_t count = (size_t)lusbcnt;
 
@@ -491,6 +497,7 @@ void stlink2_probe(stlink2_context_t ctx, stlink2_devs_t *devlist)
 
 	/* Free stlink2 dev */
 	stlink2_dev_free(&dev);
+	libusb_free_device_list(devs, 0);
 }
 
 const char *stlink2_get_serial(stlink2_t dev)
