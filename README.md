@@ -6,6 +6,8 @@ STMicroelectronics STlinkv2 programmer library and tools
 [![Build Status](https://img.shields.io/travis/xor-gate/stlink2/master.svg?label=Mac%20OSX%20%26%20Linux)](https://travis-ci.org/xor-gate/stlink2)
 [![Build status](https://img.shields.io/appveyor/ci/xor-gate/stlink2/master.svg?label=Windows)](https://ci.appveyor.com/project/xor-gate/stlink2)
 
+**NOTICE: Development has stalled, for now this is in its "archive" state. Maybe in the future I will continue it, everybody is free to fork and continue.**
+
 # Differences
 
 The stlink2 project is different from the already existing [OpenOCD](https://github.com/ntfreak/openocd),
