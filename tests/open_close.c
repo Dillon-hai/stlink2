@@ -42,7 +42,7 @@ static void test_open_close(stlink2_context_t ctx, const char *serial)
 	uint32_t cpuid;
 	uint16_t devid;
 
-	//stlink2_log_set_file(dev, stdout);
+	stlink2_log_set_file(dev, stdout);
 	stlink2_log_set_level(dev, STLINK2_LOGLEVEL_TRACE);
 
 	printf("  serial: %s\n", stlink2_get_serial(dev));
@@ -82,21 +82,15 @@ static void test_open_close(stlink2_context_t ctx, const char *serial)
 	printf("   devid: %s (0x%03x)\n", stlink2_stm32_devid_str(devid), devid);
 	printf("  flash size: %dKiB\n", stlink2_get_flash_size(dev));
 
-#ifdef BLA
-	uint8_t *flash = malloc(1024);
-	stlink2_read_mem(dev, 0x08000000, flash, 1024);
-	dump_hex(flash, 1024);
-#endif
-#ifdef SEMIHOSTING
-	while (true) {
-		if (stlink2_get_status(dev) == STLINK2_STATUS_CORE_HALTED)
-			stlink2_mcu_run(dev);
+	stlink2_jtag_drive_nrst(dev, STLINK2_CMD_DEBUG_JTAG_DRIVE_NRST_LOW);
+	stlink2_msleep(10);
+	stlink2_jtag_drive_nrst(dev, STLINK2_CMD_DEBUG_JTAG_DRIVE_NRST_HIGH);
+
+	while (1) {
 		stlink2_semihosting(dev);
 		stlink2_msleep(1);
 	}
-#endif
 
-	stlink2_mcu_run(dev);
 	stlink2_close(&dev);
 }
 

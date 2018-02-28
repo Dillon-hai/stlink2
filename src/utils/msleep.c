@@ -12,7 +12,7 @@
 #ifdef STLINK2_HAVE_WINDOWS
 #include <windows.h>
 
-void stlink2_msleep(int milliseconds)
+void stlink2_msleep(const int milliseconds)
 {
 	Sleep(milliseconds);
 }
@@ -21,7 +21,7 @@ void stlink2_msleep(int milliseconds)
 
 #include <time.h>
 
-void stlink2_msleep(int milliseconds)
+void stlink2_msleep(const int milliseconds)
 {
 	struct timespec ts;
 

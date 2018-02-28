@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#include <stlink2/cmd.h>
 #include <stlink2/cortexm.h>
 
 #define STLINK2_ARRAY_SIZE(array) (sizeof(array)/sizeof(array[0]))
@@ -64,9 +65,13 @@ float stlink2_get_target_voltage(stlink2_t dev);
 enum stlink2_mode stlink2_get_mode(struct stlink2 *dev);
 void stlink2_set_mode_swd(struct stlink2 *dev);
 enum stlink2_status stlink2_get_status(struct stlink2 *dev);
+void stlink2_jtag_drive_nrst(stlink2_t dev, const enum stlink2_cmd_debug_jtag_drive drive);
+
 void stlink2_mcu_halt(stlink2_t dev);
 void stlink2_mcu_run(stlink2_t dev);
 void stlink2_mcu_init(stlink2_t dev);
+void stlink2_mcu_resetsys(stlink2_t dev);
+
 uint32_t stlink2_get_coreid(stlink2_t dev);
 uint32_t stlink2_get_chipid(stlink2_t dev);
 uint32_t stlink2_get_cpuid(stlink2_t dev);
@@ -85,5 +90,7 @@ void stlink2_write_reg(stlink2_t dev, enum stlink2_cortexm_reg reg, uint32_t val
 #include <stlink2/semihosting.h>
 
 #include <stlink2/utils/flag.h>
+
+void stlink2_msleep(const int milliseconds);
 
 #endif /* STLINK2_H_ */

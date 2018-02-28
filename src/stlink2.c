@@ -214,11 +214,24 @@ void stlink2_force_debug(stlink2_t dev)
 	stlink2_debug_command(dev, STLINK2_CMD_DEBUG_FORCE, 0, rep, sizeof(rep));
 }
 
-void stlink2_mcu_reset(stlink2_t dev)
+void stlink2_mcu_resetsys(stlink2_t dev)
 {
 	uint8_t rep[2];
 
 	stlink2_debug_command(dev, STLINK2_CMD_DEBUG_RESETSYS, 0, rep, sizeof(rep));
+}
+
+void stlink2_jtag_drive_nrst(stlink2_t dev, const enum stlink2_cmd_debug_jtag_drive drive)
+{
+	uint8_t _cmd[STLINK2_USB_CMD_SIZE];
+	uint8_t rep[2];
+
+	memset(_cmd, 0, sizeof(_cmd));
+	_cmd[0] = STLINK2_CMD_DEBUG;
+	_cmd[1] = STLINK2_CMD_DEBUG_JTAG_DRIVE_NRST;
+	_cmd[2] = drive;
+
+	stlink2_usb_send_recv(dev, _cmd, STLINK2_USB_CMD_SIZE, rep, sizeof(rep));
 }
 
 void stlink2_mcu_hardreset(stlink2_t dev)
