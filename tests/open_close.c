@@ -42,8 +42,8 @@ static void test_open_close(stlink2_context_t ctx, const char *serial)
 	uint32_t cpuid;
 	uint16_t devid;
 
-	stlink2_log_set_file(dev, stdout);
-	stlink2_log_set_level(dev, STLINK2_LOGLEVEL_TRACE);
+	//stlink2_log_set_file(dev, stdout);
+	//stlink2_log_set_level(dev, STLINK2_LOGLEVEL_TRACE);
 
 	printf("  serial: %s\n", stlink2_get_serial(dev));
 	printf("    name: %s\n", stlink2_get_name(dev));
@@ -87,6 +87,8 @@ static void test_open_close(stlink2_context_t ctx, const char *serial)
 	stlink2_jtag_drive_nrst(dev, STLINK2_CMD_DEBUG_JTAG_DRIVE_NRST_HIGH);
 
 	while (1) {
+		if (stlink2_get_status(dev) == STLINK2_STATUS_CORE_HALTED)
+			stlink2_mcu_run(dev);
 		stlink2_semihosting(dev);
 		stlink2_msleep(1);
 	}

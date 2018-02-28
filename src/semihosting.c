@@ -35,28 +35,23 @@ void stlink2_semihosting_op_sys_writec(struct stlink2 *dev)
 
 void stlink2_semihosting_op_sys_write0(struct stlink2 *dev)
 {
-	uint32_t data;
+	union {
+		uint32_t u32;
+		uint8_t u8[4];
+	} data;
 	uint32_t addr;
 
-	stlink2_read_reg(dev, 1, &data);
-	stlink2_read_debug32(dev, data, &addr);
+	stlink2_read_reg(dev, 1, &addr);
 
-	do {
-		stlink2_read_debug32(dev, addr, &data);
-		for (size_t n = 0; n < 4; n++) {
-			if (((char *)&data)[n] == 0) {
-				data = 0;
-				break;
-			}
-
-			const size_t nbyte= fwrite(&((char *)&data)[n], 1, 1, stdout);
-			if (nbyte == 0) {
-				data = 0;
-				break;
-			}
+	while (1) {
+		stlink2_read_debug32(dev, addr, &data.u32);
+		for (size_t b = 0; b < sizeof(data); b++) {
+			if (data.u8[b] == 0)
+				return;
+			printf("%c", data.u8[b]);
 		}
 		addr += 4;
-	} while (data != 0);
+	}
 }
 
 bool stlink2_semihosting(struct stlink2 *dev)
@@ -70,14 +65,17 @@ bool stlink2_semihosting(struct stlink2 *dev)
 	stlink2_read_reg(dev, 15, &pc);
 	STLINK2_LOG_DEBUG(dev, "pc: 0x%08x\n", pc);
 	stlink2_read_debug32(dev, pc, &data);
+	STLINK2_LOG_DEBUG(dev, "pc at: 0x%08x\n", data);
 
-	if (((data & 0xffff0000) >> 16) == 0xbeab) {
+	if ((data & 0x0000ffff) == 0xbeab) {
 		stlink2_read_reg(dev, 0, &r0);
 		switch (r0) {
 		case STLINK2_SEMIHOSTING_OP_SYS_WRITEC:
+			STLINK2_LOG_DEBUG(dev, "SYS_WRITEC\n");
 			stlink2_semihosting_op_sys_writec(dev);
 			break;
 		case STLINK2_SEMIHOSTING_OP_SYS_WRITE0:
+			STLINK2_LOG_DEBUG(dev, "SYS_WRITE0\n");
 			stlink2_semihosting_op_sys_write0(dev);
 			break;
 		case STLINK2_SEMIHOSTING_OP_SYS_WRITE:
